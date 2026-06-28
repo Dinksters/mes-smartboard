@@ -301,31 +301,38 @@
     <!-- WHITEBOARD WINDOW -->
     <div id="whiteboard-view">
         <div class="toolbar">
-            <button onclick="closeBook()" style="background-color: #ef4444; color: white; border-color: #ef4444;">🏠 Portal Home</button>
-            
-            <div class="divider"></div>
-            
-            <button onclick="changePage(-1)">⬅️ Prev</button>
-            <span id="page-info">Page: 1 / ?</span>
-            <button onclick="changePage(1)">Next ➡️</button>
-            
-            <div class="divider"></div>
-            
-            <button id="btn-pen" onclick="setTool('pen')" class="active">🖊️ Stylus Pen</button>
-            <button id="btn-highlighter" onclick="setTool('highlighter')">🖍️ Highlighter</button>
-            <button id="btn-eraser" onclick="setTool('eraser')">🗑️ Segment Eraser</button>
-            <button onclick="clearBoard()">❌ Clear Canvas</button>
-            
-            <div class="divider"></div>
-            
-            <button onclick="adjustZoom(-0.1)">➖ Zoom Out</button>
-            <button onclick="adjustZoom(0.1)">➕ Zoom In</button>
-            
-            <div class="divider"></div>
-            
-            <button onclick="saveAllNotes()" style="background-color: var(--success); color: white; border-color: var(--success);">💾 Save Smart Board Notes</button>
-        </div>
+    <button onclick="closeBook()" style="background-color: #e74c3c; color: white;">🏠 Home</button>
+    <div style="width: 2px; height: 25px; background: #eee; margin: 0 10px;"></div>
+    
+    <button onclick="changePage(-1)">⬅️ Prev</button>
+    <span id="page-info">Page: 1 / ?</span>
+    <button onclick="changePage(1)">Next ➡️</button>
+    
+    <div style="width: 2px; height: 25px; background: #eee; margin: 0 10px;"></div>
+    
+    <!-- Drawing Tools -->
+    <button id="btn-pen" onclick="setTool('pen')" class="active">🖊️ Pen</button>
+    <button id="btn-highlighter" onclick="setTool('highlighter')">🖍️ Highlighter</button>
+    <button id="btn-eraser" onclick="setTool('eraser')">🗑️ Eraser</button>
+    <button onclick="clearBoard()">❌ Clear</button>
+    
+    <div style="width: 2px; height: 25px; background: #eee; margin: 0 10px;"></div>
+    
+    <!-- NEW: Intelligent Shape Tools -->
+    <button onclick="addShape('rect')">⬜ Rectangle</button>
+    <button onclick="addShape('circle')">⭕ Circle</button>
 
+    <div style="width: 2px; height: 25px; background: #eee; margin: 0 10px;"></div>
+    
+    <!-- NEW: Export and Save -->
+    <button onclick="exportPage()" style="background-color: #f39c12; color: white;">📸 Export Image</button>
+    <button onclick="saveAllNotes()" style="background-color: var(--success); color: white;">💾 Save Notes</button>
+</div>
+
+<!-- NEW: A hidden Toast Notification element for Auto-Saving -->
+<div id="toast" style="display: none; position: fixed; bottom: 20px; right: 20px; background: #2ecc71; color: white; padding: 10px 20px; border-radius: 5px; z-index: 100; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+    Automatic Backup Completed ✅
+</div>
         <!-- Scrollable wrapper for viewing scaled boards -->
         <div id="board-viewport">
             <div id="board-container">
@@ -339,6 +346,70 @@
     <div id="toast">Notes saved successfully!</div>
 
     <script>
+        function addShape(type) {
+    if (!fabricCanvas) return;
+    
+    // Turn off drawing mode so the teacher can click and drag the new shape
+    fabricCanvas.isDrawingMode = false;
+    document.querySelectorAll('.toolbar button').forEach(btn => btn.classList.remove('active'));
+
+    let shape;
+    if (type === 'rect') {
+        shape = new fabric.Rect({
+            left: 100, top: 100,
+            fill: 'transparent', // Hollow inside so you can see the textbook
+            stroke: '#e74c3c', strokeWidth: 4,
+            width: 150, height: 100
+        });
+    } else if (type === 'circle') {
+        shape = new fabric.Circle({
+            left: 100, top: 100,
+            fill: 'transparent',
+            stroke: '#3498db', strokeWidth: 4,
+            radius: 75
+        });
+    }
+
+    fabricCanvas.add(shape);
+    fabricCanvas.setActiveObject(shape);
+    saveTemporaryDrawing();
+}
+        // Auto-Save Timer Engine
+setInterval(() => {
+    if (activeBook && fabricCanvas) {
+        saveTemporaryDrawing();
+        localStorage.setItem('smartboard_pdf_notes_v3', JSON.stringify(pageDrawings));
+        
+        // Show a quick notification instead of an annoying popup alert
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 3000); // Hide after 3 seconds
+    }
+}, 60000); // 60 seconds
+        function exportPage() {
+    if (!activeBook) return;
+
+    // 1. Get both the bottom PDF canvas and top Drawing canvas
+    const pdfCanvas = document.getElementById('pdf-layer');
+    const drawCanvas = document.getElementById('drawing-layer');
+    
+    // 2. Create a temporary merged canvas
+    const mergedCanvas = document.createElement('canvas');
+    mergedCanvas.width = pdfCanvas.width;
+    mergedCanvas.height = pdfCanvas.height;
+    const ctx = mergedCanvas.getContext('2d');
+
+    // 3. Draw the PDF, then draw the teacher's notes on top
+    ctx.drawImage(pdfCanvas, 0, 0);
+    ctx.drawImage(drawCanvas, 0, 0);
+
+    // 4. Convert it to an image file and trigger a download
+    const dataURL = mergedCanvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = `${activeBook.title}_Page_${pageNum}.png`;
+    link.href = dataURL;
+    link.click();
+}
         // Configure local asset library tracking path resolution
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 

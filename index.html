@@ -3,35 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MES Campus School - Interactive Portal</title>
-    <!-- Dependencies for PDF rendering and drawing -->
+    <title>MES Campus School - Smart Portal</title>
+    <!-- PDF.js for rendering PDFs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- Fabric.js for drawing layers -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     
     <style>
         :root {
-            --primary: #1e293b;
-            --primary-light: #334155;
-            --accent: #2563eb;
-            --accent-hover: #1d4ed8;
-            --bg-main: #f8fafc;
-            --bg-card: #ffffff;
-            --text-dark: #0f172a;
-            --text-light: #f8fafc;
-            --text-muted: #64748b;
-            --success: #10b981;
+            --apple-bg: #f5f5f7;
+            --apple-dark: #1d1d1f;
+            --apple-blue: #0071e3;
+            --apple-gray: #86868b;
+            --glass: rgba(255, 255, 255, 0.8);
+            --border: rgba(0, 0, 0, 0.08);
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: var(--bg-main);
-            color: var(--text-dark);
-            overflow-x: hidden;
+            background-color: var(--apple-bg);
+            color: var(--apple-dark);
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* --- DASHBOARD VIEW --- */
+        /* --- APPLE-STYLE DASHBOARD --- */
         #dashboard-view {
             display: flex;
             min-height: 100vh;
@@ -39,188 +36,162 @@
 
         .sidebar {
             width: 280px;
-            background-color: var(--primary);
-            color: var(--text-light);
-            padding: 24px;
-            box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+            background-color: var(--glass);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border);
+            padding: 30px 20px;
             display: flex;
             flex-direction: column;
-            gap: 30px;
         }
 
         .sidebar h2 {
-            font-size: 22px;
-            margin: 0;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--primary-light);
-            text-align: center;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            padding-left: 10px;
+            letter-spacing: -0.5px;
         }
 
         .nav-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            margin-bottom: 25px;
         }
 
         .nav-group label {
+            display: block;
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--text-muted);
-            font-weight: 600;
-            margin-left: 4px;
+            letter-spacing: 0.5px;
+            color: var(--apple-gray);
+            margin-bottom: 10px;
+            padding-left: 10px;
+            font-weight: 700;
         }
 
         .nav-btn {
-            display: flex;
-            align-items: center;
+            display: block;
             width: 100%;
-            padding: 12px 16px;
+            padding: 12px 14px;
             background: none;
             border: none;
-            color: #cbd5e1;
+            color: var(--apple-dark);
             text-align: left;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 10px;
             transition: all 0.2s ease;
+            margin-bottom: 4px;
         }
 
         .nav-btn:hover {
-            background-color: var(--primary-light);
-            color: var(--text-light);
+            background-color: rgba(0, 0, 0, 0.04);
         }
 
         .nav-btn.active {
-            background-color: var(--accent);
-            color: var(--text-light);
-            font-weight: 600;
+            background-color: var(--apple-blue);
+            color: white;
         }
 
         .main-content {
             flex-grow: 1;
-            padding: 40px;
+            padding: 50px;
             overflow-y: auto;
         }
 
-        .header h1 {
-            margin: 0 0 8px 0;
-            font-size: 32px;
-            color: var(--text-dark);
-        }
-
-        .header p {
-            margin: 0;
-            color: var(--text-muted);
-            font-size: 16px;
-        }
+        .header h1 { font-size: 32px; font-weight: 700; margin: 0; letter-spacing: -1px; }
+        .header p { color: var(--apple-gray); margin-top: 8px; font-size: 16px; }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 24px;
-            margin-top: 32px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 30px;
+            margin-top: 35px;
         }
 
         .book-card {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
             text-align: center;
             cursor: pointer;
-            border: 1px solid #e2e8f0;
-            transition: all 0.2s ease-in-out;
+            border: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         .book-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
-            border-color: var(--accent);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+            border-color: rgba(0, 0, 0, 0.15);
         }
 
-        .book-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
+        .book-icon { font-size: 44px; margin-bottom: 15px; }
+        .book-title { font-weight: 600; color: var(--apple-dark); font-size: 14px; line-height: 1.4; }
 
-        .book-title {
-            font-weight: 600;
-            color: var(--text-dark);
-            font-size: 16px;
-            line-height: 1.4;
-        }
-
-        /* --- WHITEBOARD VIEW --- */
+        /* --- STUDIO WHITEBOARD DESIGN --- */
         #whiteboard-view {
             display: none;
             flex-direction: column;
             align-items: center;
-            background-color: #475569;
-            min-height: 100vh;
             padding: 20px;
-            box-sizing: border-box;
+            background-color: #e5e5ea;
+            min-height: 100vh;
         }
 
-        .toolbar {
-            background-color: var(--bg-card);
+        .apple-toolbar {
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(30px);
             padding: 10px 24px;
-            border-radius: 40px;
+            border-radius: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
             display: flex;
             gap: 12px;
             align-items: center;
-            position: sticky;
-            top: 20px;
-            z-index: 100;
+            border: 1px solid rgba(255,255,255,0.4);
+            z-index: 30;
         }
 
-        .toolbar button {
-            padding: 8px 16px;
+        .apple-toolbar button, .apple-toolbar select {
+            padding: 8px 14px;
             font-size: 14px;
-            font-weight: 600;
             cursor: pointer;
-            border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            background-color: var(--bg-card);
-            color: var(--text-dark);
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 12px;
+            background-color: white;
+            color: var(--apple-dark);
+            font-weight: 500;
             transition: all 0.2s ease;
         }
 
-        .toolbar button:hover {
-            background-color: var(--bg-main);
+        .apple-toolbar button:hover { background-color: #f5f5f7; }
+        .apple-toolbar button.active { background-color: var(--apple-dark); color: white; }
+        
+        /* Color Circle Selectors */
+        .color-picker-group {
+            display: flex;
+            gap: 6px;
+            margin: 0 8px;
         }
-
-        .toolbar button.active {
-            background-color: var(--accent);
-            color: var(--text-light);
-            border-color: var(--accent);
-        }
-
-        .divider {
-            width: 1px;
+        .color-dot {
+            width: 24px;
             height: 24px;
-            background-color: #cbd5e1;
-            margin: 0 4px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.1s ease;
         }
-
-        #board-viewport {
-            max-width: 100%;
-            max-height: calc(100vh - 120px);
-            overflow: auto;
-            border-radius: 8px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-            background: #cbd5e1;
+        .color-dot.selected {
+            border-color: var(--apple-dark);
+            transform: scale(1.15);
         }
 
         #board-container {
             position: relative;
             background: white;
-            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
 
         #pdf-layer, .canvas-container {
@@ -228,214 +199,146 @@
             top: 0;
             left: 0;
         }
-
-        .canvas-container {
-            z-index: 10;
-        }
-
-        #page-info {
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 14px;
-            min-width: 90px;
-            text-align: center;
-        }
-
-        /* --- TOAST NOTIFICATIONS --- */
+        #pdf-layer { z-index: 5; }
+        .canvas-container { z-index: 10; }
+        #page-info { font-weight: 600; color: var(--apple-dark); margin: 0 10px; font-size: 14px; }
+        
+        /* Dynamic Toast Notifications */
         #toast {
+            display: none;
             position: fixed;
             bottom: 30px;
-            right: 30px;
-            background-color: var(--primary);
-            color: var(--text-light);
+            background: var(--apple-dark);
+            color: white;
             padding: 12px 24px;
-            border-radius: 8px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+            border-radius: 14px;
+            z-index: 100;
             font-weight: 500;
-            z-index: 1000;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            animation: slideUp 0.3s ease;
         }
-
-        #toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <!-- DASHBOARD PANEL -->
+    <!-- SCREEN 1: PORTAL DASHBOARD -->
     <div id="dashboard-view">
         <div class="sidebar">
-            <h2>MES Portal 🏫</h2>
+            <h2>MES Campus School 🏫</h2>
             
             <div class="nav-group">
-                <label>Academic Year</label>
-                <button class="nav-btn active">2026 - 2027</button>
+                <label>Languages</label>
+                <button id="btn-English" class="nav-btn active" onclick="selectSection('English')">📝 English</button>
+                <button id="btn-Hindi" class="nav-btn" onclick="selectSection('Hindi')">📙 Hindi</button>
             </div>
-            
+
             <div class="nav-group">
-                <label>Select Subject</label>
-                <button id="nav-English" class="nav-btn active" onclick="selectSubject('English')">📖 English</button>
-                <button id="nav-Hindi" class="nav-btn" onclick="selectSubject('Hindi')">✍️ Hindi</button>
-                <button id="nav-Maths" class="nav-btn" onclick="selectSubject('Maths')">📐 Maths</button>
-                <button id="nav-SS" class="nav-btn" onclick="selectSubject('SS')">🌍 SS (Social Science)</button>
-                <button id="nav-GS" class="nav-btn" onclick="selectSubject('GS')">🔬 GS (General Science)</button>
+                <label>Mathematics</label>
+                <button id="btn-MathsPart1" class="nav-btn" onclick="selectSection('MathsPart1')">📐 Maths (Part 1)</button>
+                <button id="btn-MathsPart2" class="nav-btn" onclick="selectSection('MathsPart2')">📐 Maths (Part 2)</button>
+            </div>
+
+            <div class="nav-group">
+                <label>Social Science</label>
+                <button id="btn-SSPart1" class="nav-btn" onclick="selectSection('SSPart1')">🌍 SS (Part 1)</button>
+                <button id="btn-SSPart2" class="nav-btn" onclick="selectSection('SSPart2')">🌍 SS (Part 2)</button>
             </div>
         </div>
 
         <div class="main-content">
             <div class="header">
                 <h1 id="dashboard-title">English Textbooks</h1>
-                <p>Click any component textbook file to launch it directly onto the Senses whiteboard drawing overlay layer.</p>
+                <p>Select a digital file to launch on the smartboard overlay framework.</p>
             </div>
-            
-            <div class="grid" id="books-grid">
-                <!-- Book layout rendered dynamically -->
-            </div>
+            <div class="grid" id="books-grid"></div>
         </div>
     </div>
 
-    <!-- WHITEBOARD WINDOW -->
+    <!-- SCREEN 2: INTERACTIVE STUDIO WHITEBOARD -->
     <div id="whiteboard-view">
-        <div class="toolbar">
-    <button onclick="closeBook()" style="background-color: #e74c3c; color: white;">🏠 Home</button>
-    <div style="width: 2px; height: 25px; background: #eee; margin: 0 10px;"></div>
-    
-    <button onclick="changePage(-1)">⬅️ Prev</button>
-    <span id="page-info">Page: 1 / ?</span>
-    <button onclick="changePage(1)">Next ➡️</button>
-    
-    <div style="width: 2px; height: 25px; background: #eee; margin: 0 10px;"></div>
-    
-    <!-- Drawing Tools -->
-    <button id="btn-pen" onclick="setTool('pen')" class="active">🖊️ Pen</button>
-    <button id="btn-highlighter" onclick="setTool('highlighter')">🖍️ Highlighter</button>
-    <button id="btn-eraser" onclick="setTool('eraser')">🗑️ Eraser</button>
-    <button onclick="clearBoard()">❌ Clear</button>
-    
-    <div style="width: 2px; height: 25px; background: #eee; margin: 0 10px;"></div>
-    
-    <!-- NEW: Intelligent Shape Tools -->
-    <button onclick="addShape('rect')">⬜ Rectangle</button>
-    <button onclick="addShape('circle')">⭕ Circle</button>
-
-    <div style="width: 2px; height: 25px; background: #eee; margin: 0 10px;"></div>
-    
-    <!-- NEW: Export and Save -->
-    <button onclick="exportPage()" style="background-color: #f39c12; color: white;">📸 Export Image</button>
-    <button onclick="saveAllNotes()" style="background-color: var(--success); color: white;">💾 Save Notes</button>
-</div>
-
-<!-- NEW: A hidden Toast Notification element for Auto-Saving -->
-<div id="toast" style="display: none; position: fixed; bottom: 20px; right: 20px; background: #2ecc71; color: white; padding: 10px 20px; border-radius: 5px; z-index: 100; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
-    Automatic Backup Completed ✅
-</div>
-        <!-- Scrollable wrapper for viewing scaled boards -->
-        <div id="board-viewport">
-            <div id="board-container">
-                <canvas id="pdf-layer"></canvas>
-                <canvas id="drawing-layer"></canvas>
+        <div class="apple-toolbar">
+            <button onclick="closeBook()" style="background-color: #ff3b30; color: white; border: none;">🏠 Exit</button>
+            <div style="width: 1px; height: 20px; background: var(--border);"></div>
+            
+            <button onclick="changePage(-1)">⬅️</button>
+            <span id="page-info">Page: 1 / ?</span>
+            <button onclick="changePage(1)">➡️</button>
+            
+            <div style="width: 1px; height: 20px; background: var(--border);"></div>
+            
+            <!-- Engine Application Controls -->
+            <button id="btn-pen" onclick="setTool('pen')" class="active">🖊️ Pen</button>
+            <button id="btn-highlighter" onclick="setTool('highlighter')">🖍️ Highlight</button>
+            <button id="btn-eraser" onclick="setTool('eraser')">🗑️ Eraser</button>
+            
+            <!-- Brush Weights Selector -->
+            <select id="brush-weight" onchange="updateBrushProfile()">
+                <option value="2">Fine Tip (2px)</option>
+                <option value="5" selected>Medium Marker (5px)</option>
+                <option value="12">Thick Board Marker (12px)</option>
+            </select>
+            
+            <div style="width: 1px; height: 20px; background: var(--border);"></div>
+            
+            <!-- Dynamic Active Color Ring Selector -->
+            <div class="color-picker-group">
+                <div class="color-dot selected" style="background: #ff3b30;" onclick="changeColor('#ff3b30', this)"></div>
+                <div class="color-dot" style="background: #0071e3;" onclick="changeColor('#0071e3', this)"></div>
+                <div class="color-dot" style="background: #34c759;" onclick="changeColor('#34c759', this)"></div>
+                <div class="color-dot" style="background: #ffcc00;" onclick="changeColor('#ffcc00', this)"></div>
+                <div class="color-dot" style="background: #1d1d1f;" onclick="changeColor('#1d1d1f', this)"></div>
             </div>
+
+            <div style="width: 1px; height: 20px; background: var(--border);"></div>
+            
+            <!-- Geometry Vectors -->
+            <button onclick="addShape('rect')">⬜ Rect</button>
+            <button onclick="addShape('circle')">⭕ Circle</button>
+            <button onclick="clearBoard()">❌ Clear</button>
+            
+            <div style="width: 1px; height: 20px; background: var(--border);"></div>
+            <button onclick="zoom(0.2)">➕</button>
+            <button onclick="zoom(-0.2)">➖</button>
+            
+            <button onclick="saveAllNotes()" style="background-color: #34c759; color: white; border: none; margin-left: 10px;">💾 Save</button>
+        </div>
+
+        <div id="board-container">
+            <canvas id="pdf-layer"></canvas>
+            <canvas id="drawing-layer"></canvas>
         </div>
     </div>
 
-    <!-- Toast Component -->
-    <div id="toast">Notes saved successfully!</div>
+    <div id="toast">Changes Saved Locally ✅</div>
 
     <script>
-        function addShape(type) {
-    if (!fabricCanvas) return;
-    
-    // Turn off drawing mode so the teacher can click and drag the new shape
-    fabricCanvas.isDrawingMode = false;
-    document.querySelectorAll('.toolbar button').forEach(btn => btn.classList.remove('active'));
-
-    let shape;
-    if (type === 'rect') {
-        shape = new fabric.Rect({
-            left: 100, top: 100,
-            fill: 'transparent', // Hollow inside so you can see the textbook
-            stroke: '#e74c3c', strokeWidth: 4,
-            width: 150, height: 100
-        });
-    } else if (type === 'circle') {
-        shape = new fabric.Circle({
-            left: 100, top: 100,
-            fill: 'transparent',
-            stroke: '#3498db', strokeWidth: 4,
-            radius: 75
-        });
-    }
-
-    fabricCanvas.add(shape);
-    fabricCanvas.setActiveObject(shape);
-    saveTemporaryDrawing();
-}
-        // Auto-Save Timer Engine
-setInterval(() => {
-    if (activeBook && fabricCanvas) {
-        saveTemporaryDrawing();
-        localStorage.setItem('smartboard_pdf_notes_v3', JSON.stringify(pageDrawings));
-        
-        // Show a quick notification instead of an annoying popup alert
-        const toast = document.getElementById('toast');
-        toast.style.display = 'block';
-        setTimeout(() => toast.style.display = 'none', 3000); // Hide after 3 seconds
-    }
-}, 60000); // 60 seconds
-        function exportPage() {
-    if (!activeBook) return;
-
-    // 1. Get both the bottom PDF canvas and top Drawing canvas
-    const pdfCanvas = document.getElementById('pdf-layer');
-    const drawCanvas = document.getElementById('drawing-layer');
-    
-    // 2. Create a temporary merged canvas
-    const mergedCanvas = document.createElement('canvas');
-    mergedCanvas.width = pdfCanvas.width;
-    mergedCanvas.height = pdfCanvas.height;
-    const ctx = mergedCanvas.getContext('2d');
-
-    // 3. Draw the PDF, then draw the teacher's notes on top
-    ctx.drawImage(pdfCanvas, 0, 0);
-    ctx.drawImage(drawCanvas, 0, 0);
-
-    // 4. Convert it to an image file and trigger a download
-    const dataURL = mergedCanvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.download = `${activeBook.title}_Page_${pageNum}.png`;
-    link.href = dataURL;
-    link.click();
-}
-        // Configure local asset library tracking path resolution
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        // --- MAPS PERFECTLY TO YOUR CODESPACE DIRECTORIES ---
-        const schoolDatabase = {
+        // --- ENTIRE CODESPACE REPOSITORY MATRIX MAP ---
+        const database = {
             "English": [
-                { title: "Introductory Module", file: "Subjects/English/Intro.pdf" },
-                { title: "Unit 2 - Part 1", file: "Subjects/English/2 - 1.pdf" },
-                { title: "Unit 2 - Part 2", file: "Subjects/English/2 - 2.pdf" },
-                { title: "Unit 2 - Part 3", file: "Subjects/English/2 - 3.pdf" },
-                { title: "Unit 2 - Transcript", file: "Subjects/English/2 - Transcript.pdf" },
-                { title: "Unit 3 - Part 1", file: "Subjects/English/3 - 1.pdf" },
-                { title: "Unit 3 - Part 2", file: "Subjects/English/3 - 2.pdf" },
-                { title: "Unit 3 - Part 3", file: "Subjects/English/3 - 3.pdf" },
-                { title: "Unit 3 - Transcript", file: "Subjects/English/3 - Transcript.pdf" },
-                { title: "Unit 4 - Part 1", file: "Subjects/English/4 - 1.pdf" },
-                { title: "Unit 4 - Part 2", file: "Subjects/English/4 - 2.pdf" },
-                { title: "Unit 4 - Part 3", file: "Subjects/English/4 - 3.pdf" },
-                { title: "Unit 4 - Transcript", file: "Subjects/English/4 - Transcript.pdf" },
-                { title: "Unit 5 - Part 1", file: "Subjects/English/5 - 1.pdf" },
-                { title: "Unit 5 - Part 2", file: "Subjects/English/5 - 2.pdf" },
-                { title: "Unit 5 - Part 3", file: "Subjects/English/5 - 3.pdf" },
-                { title: "Unit 5 - Transcript", file: "Subjects/English/5 - Transcript.pdf" }
+                { title: "Intro Material", file: "Subjects/English/Intro.pdf" },
+                { title: "Chapter 2 - Sec 1", file: "Subjects/English/2 - 1.pdf" },
+                { title: "Chapter 2 - Sec 2", file: "Subjects/English/2 - 2.pdf" },
+                { title: "Chapter 2 - Sec 3", file: "Subjects/English/2 - 3.pdf" },
+                { title: "Chapter 2 - Transcript", file: "Subjects/English/2 - Transcript.pdf" },
+                { title: "Chapter 3 - Sec 1", file: "Subjects/English/3 - 1.pdf" },
+                { title: "Chapter 3 - Sec 2", file: "Subjects/English/3 - 2.pdf" },
+                { title: "Chapter 3 - Sec 3", file: "Subjects/English/3 - 3.pdf" },
+                { title: "Chapter 3 - Transcript", file: "Subjects/English/3 - Transcript.pdf" },
+                { title: "Chapter 4 - Sec 1", file: "Subjects/English/4 - 1.pdf" },
+                { title: "Chapter 4 - Sec 2", file: "Subjects/English/4 - 2.pdf" },
+                { title: "Chapter 4 - Sec 3", file: "Subjects/English/4 - 3.pdf" },
+                { title: "Chapter 4 - Transcript", file: "Subjects/English/4 - Transcript.pdf" },
+                { title: "Chapter 5 - Sec 1", file: "Subjects/English/5 - 1.pdf" },
+                { title: "Chapter 5 - Sec 2", file: "Subjects/English/5 - 2.pdf" },
+                { title: "Chapter 5 - Sec 3", file: "Subjects/English/5 - 3.pdf" },
+                { title: "Chapter 5 - Transcript", file: "Subjects/English/5 - Transcript.pdf" }
             ],
             "Hindi": [
-                { title: "Hindi Introduction", file: "Subjects/Hindi/Intro.pdf" },
+                { title: "Introduction", file: "Subjects/Hindi/Intro.pdf" },
                 { title: "Chapter 1", file: "Subjects/Hindi/1.pdf" },
                 { title: "Chapter 2", file: "Subjects/Hindi/2.pdf" },
                 { title: "Chapter 3", file: "Subjects/Hindi/3.pdf" },
@@ -447,216 +350,269 @@ setInterval(() => {
                 { title: "Chapter 9", file: "Subjects/Hindi/9.pdf" },
                 { title: "Chapter 10", file: "Subjects/Hindi/10.pdf" }
             ],
-            "Maths": [
-                { title: "Mathematics Part 1 (Check Folder)", file: "Subjects/Maths/Part 1" },
-                { title: "Mathematics Part 2 (Check Folder)", file: "Subjects/Maths/Part 2" }
+            "MathsPart1": [
+                { title: "Maths Part 1 - Chapter 1", file: "Subjects/Maths/Part 1/1.pdf" },
+                { title: "Maths Part 1 - Chapter 2", file: "Subjects/Maths/Part 1/2.pdf" }
             ],
-            "SS": [
-                { title: "Social Science Part 1", file: "Subjects/SS/Part 1" },
-                { title: "Social Science Part 2", file: "Subjects/SS/Part 2" }
+            "MathsPart2": [
+                { title: "Maths Part 2 - Chapter 1", file: "Subjects/Maths/Part 2/1.pdf" },
+                { title: "Maths Part 2 - Chapter 2", file: "Subjects/Maths/Part 2/2.pdf" }
             ],
-            "GS": []
+            "SSPart1": [
+                { title: "Social Science Part 1 - Chapter 1", file: "Subjects/SS/Part 1/1.pdf" },
+                { title: "Social Science Part 1 - Chapter 2", file: "Subjects/SS/Part 1/2.pdf" }
+            ],
+            "SSPart2": [
+                { title: "Social Science Part 2 - Chapter 1", file: "Subjects/SS/Part 2/1.pdf" },
+                { title: "Social Science Part 2 - Chapter 2", file: "Subjects/SS/Part 2/2.pdf" }
+            ]
         };
 
-        let currentSubject = "English";
-        let activeBookFile = null;
+        let currentSection = "English";
+        let activeBook = null;
         let pdfDoc = null;
         let pageNum = 1;
-        let scale = 1.3; // Default crisp reading density base scale
+        let scale = 1.4;
         let fabricCanvas = null;
-        let currentTool = 'pen';
-        
-        // Permanent vector persistence memory ledger
-        let globalSavedNotes = JSON.parse(localStorage.getItem('mes_board_annotations_v3')) || {};
+        let activeColor = "#ff3b30"; 
+        let pageDrawings = JSON.parse(localStorage.getItem('smartboard_apple_notes')) || {};
 
-        function selectSubject(subject) {
-            currentSubject = subject;
-            // Balance active state classes across buttons
-            document.querySelectorAll('.sidebar .nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`nav-${subject}`).classList.add('active');
-            
-            document.getElementById('dashboard-title').textContent = `${subject} Textbooks`;
-            renderDashboardGrid();
+        const titleMap = {
+            "English": "English Textbooks", "Hindi": "Hindi Textbooks",
+            "MathsPart1": "Mathematics - Part 1", "MathsPart2": "Mathematics - Part 2",
+            "SSPart1": "Social Science - Part 1", "SSPart2": "Social Science - Part 2"
+        };
+
+        // --- VIEW CONTROLLER HANDLING ---
+        function selectSection(sectionName) {
+            currentSection = sectionName;
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${sectionName}`).classList.add('active');
+            document.getElementById('dashboard-title').textContent = titleMap[sectionName];
+            renderDashboardBooks();
         }
 
-        function renderDashboardGrid() {
+        function renderDashboardBooks() {
             const grid = document.getElementById('books-grid');
             grid.innerHTML = "";
-            const modules = schoolDatabase[currentSubject] || [];
-
-            if(modules.length === 0) {
-                grid.innerHTML = `<div style="color: var(--text-muted); font-style: italic; padding: 10px;">No PDF modules found yet in this directory branch.</div>`;
-                return;
-            }
-
-            modules.forEach(book => {
+            const books = database[currentSection] || [];
+            
+            books.forEach(book => {
                 const card = document.createElement('div');
                 card.className = 'book-card';
-                card.onclick = () => openWhiteboardView(book.file);
-                card.innerHTML = `
-                    <div class="book-icon">📕</div>
-                    <div class="book-title">${book.title}</div>
-                `;
+                card.onclick = () => openBook(book);
+                card.innerHTML = `<div class="book-icon">📘</div><div class="book-title">${book.title}</div>`;
                 grid.appendChild(card);
             });
         }
 
-        function openWhiteboardView(filePath) {
-            activeBookFile = filePath;
+        // --- STACK RENDER ENGINE ---
+        function openBook(book) {
+            activeBook = book;
             pageNum = 1;
             document.getElementById('dashboard-view').style.display = 'none';
             document.getElementById('whiteboard-view').style.display = 'flex';
             
-            loadPDFDocument(filePath);
-        }
-
-        function closeBook() {
-            saveStateToMemoryMemory();
-            if(fabricCanvas) {
-                fabricCanvas.dispose();
-                fabricCanvas = null;
-            }
-            pdfDoc = null;
-            document.getElementById('whiteboard-view').style.display = 'none';
-            document.getElementById('dashboard-view').style.display = 'flex';
-        }
-
-        function loadPDFDocument(url) {
-            pdfjsLib.getDocument(url).promise.then(pdf => {
+            pdfjsLib.getDocument(book.file).promise.then(pdf => {
                 pdfDoc = pdf;
-                renderActivePage();
+                renderPage();
             }).catch(err => {
-                console.error("PDF Parsing runtime breakdown:", err);
-                alert("Could not load file target direct link. Check file paths relative to root.");
+                console.error(err);
+                alert("File path execution error: Verification required for matching repository lowercase capitalization rules inside the array declaration framework.");
                 closeBook();
             });
         }
 
-        function renderActivePage() {
-            if(!pdfDoc) return;
+        function renderPage() {
+            document.getElementById('page-info').textContent = `Page: ${pageNum} / ${pdfDoc.numPages}`;
             
             pdfDoc.getPage(pageNum).then(page => {
-                const canvas = document.getElementById('pdf-layer');
-                const ctx = canvas.getContext('2d');
+                const pdfCanvas = document.getElementById('pdf-layer');
+                const context = pdfCanvas.getContext('2d');
                 const viewport = page.getViewport({ scale: scale });
 
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
+                pdfCanvas.height = viewport.height;
+                pdfCanvas.width = viewport.width;
 
-                const wrapper = document.getElementById('board-container');
-                wrapper.style.width = `${viewport.width}px`;
-                wrapper.style.height = `${viewport.height}px`;
+                const container = document.getElementById('board-container');
+                container.style.width = `${viewport.width}px`;
+                container.style.height = `${viewport.height}px`;
 
-                const renderCtx = { canvasContext: ctx, viewport: viewport };
-                
-                page.render(renderCtx).promise.then(() => {
-                    setupFabricLayer(viewport.width, viewport.height);
+                page.render({ canvasContext: context, viewport: viewport }).promise.then(() => {
+                    if (!fabricCanvas) {
+                        initFabric(viewport.width, viewport.height);
+                    } else {
+                        fabricCanvas.setWidth(viewport.width);
+                        fabricCanvas.setHeight(viewport.height);
+                        fabricCanvas.clear();
+                        loadSavedNotes();
+                    }
                 });
-
-                document.getElementById('page-info').textContent = `Page: ${pageNum} / ${pdfDoc.numPages}`;
             });
         }
 
-        function setupFabricLayer(w, h) {
-            if (!fabricCanvas) {
-                fabricCanvas = new fabric.Canvas('drawing-layer', {
-                    width: w,
-                    height: h,
-                    isDrawingMode: true
-                });
+        function initFabric(width, height) {
+            fabricCanvas = new fabric.Canvas('drawing-layer', {
+                width: width, height: height, isDrawingMode: true
+            });
+            setTool('pen');
+            loadSavedNotes();
 
-                // Attach dynamic input event listeners for touch tracking autosave hooks
-                fabricCanvas.on('object:added', saveStateToMemoryMemory);
-                fabricCanvas.on('object:modified', saveStateToMemoryMemory);
-                fabricCanvas.on('mouse:down', function(opt) {
-                    if(currentTool === 'eraser' && opt.target) {
-                        fabricCanvas.remove(opt.target);
-                        saveStateToMemoryMemory();
-                    }
-                });
+            fabricCanvas.on('mouse:down', function(options) {
+                if (currentTool === 'eraser' && options.target) {
+                    fabricCanvas.remove(options.target);
+                    saveTemporaryDrawing();
+                }
+            });
 
-                setTool(currentTool);
-            } else {
-                fabricCanvas.setWidth(w);
-                fabricCanvas.setHeight(h);
-                fabricCanvas.clear();
-            }
+            fabricCanvas.on('object:added', saveTemporaryDrawing);
+            fabricCanvas.on('object:modified', saveTemporaryDrawing);
+        }
 
-            // Fetch structural drawings matching active document context string coordinates
-            const storageKey = getUniqueKey();
-            if(globalSavedNotes[storageKey]) {
-                fabricCanvas.loadFromJSON(globalSavedNotes[storageKey], fabricCanvas.renderAll.bind(fabricCanvas));
+        // --- ENGINE INSTRUMENT MODES ---
+        let currentTool = 'pen';
+        function setTool(tool) {
+            currentTool = tool;
+            document.getElementById('btn-pen').classList.toggle('active', tool === 'pen');
+            document.getElementById('btn-highlighter').classList.toggle('active', tool === 'highlighter');
+            document.getElementById('btn-eraser').classList.toggle('active', tool === 'eraser');
+
+            updateBrushProfile();
+        }
+
+        function changeColor(hex, element) {
+            activeColor = hex;
+            document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('selected'));
+            element.classList.add('selected');
+            updateBrushProfile();
+        }
+
+        function updateBrushProfile() {
+            if (!fabricCanvas) return;
+
+            const selectedWeight = parseInt(document.getElementById('brush-weight').value);
+
+            if (currentTool === 'pen') {
+                fabricCanvas.isDrawingMode = true;
+                fabricCanvas.freeDrawingBrush.color = activeColor;
+                fabricCanvas.freeDrawingBrush.width = selectedWeight;
+            } else if (currentTool === 'highlighter') {
+                fabricCanvas.isDrawingMode = true;
+                // Formats target color hex profile to transmissive RGBA structural matrix 40%
+                const r = parseInt(activeColor.slice(1,3), 16);
+                const g = parseInt(activeColor.slice(3,5), 16);
+                const b = parseInt(activeColor.slice(5,7), 16);
+                fabricCanvas.freeDrawingBrush.color = `rgba(${r}, ${g}, ${b}, 0.35)`;
+                fabricCanvas.freeDrawingBrush.width = selectedWeight * 4; // Makes the highlighter scales matching proportionally
+            } else if (currentTool === 'eraser') {
+                fabricCanvas.isDrawingMode = false;
             }
         }
 
-        function getUniqueKey() {
-            return `book_${activeBookFile}_page_${pageNum}`;
+        // --- INTELLECTUAL SHAPES VECTOR ENGINE ---
+        function addShape(type) {
+            if (!fabricCanvas) return;
+            fabricCanvas.isDrawingMode = false;
+            document.querySelectorAll('.apple-toolbar button').forEach(b => {
+                if(b.id) b.classList.remove('active');
+            });
+
+            let shape;
+            const weight = parseInt(document.getElementById('brush-weight').value);
+
+            if (type === 'rect') {
+                shape = new fabric.Rect({
+                    left: 150, top: 150,
+                    fill: 'transparent',
+                    stroke: activeColor, strokeWidth: weight,
+                    width: 160, height: 110,
+                    cornerSize: 10
+                });
+            } else if (type === 'circle') {
+                shape = new fabric.Circle({
+                    left: 150, top: 150,
+                    fill: 'transparent',
+                    stroke: activeColor, strokeWidth: weight,
+                    radius: 65
+                });
+            }
+            fabricCanvas.add(shape);
+            fabricCanvas.setActiveObject(shape);
+            saveTemporaryDrawing();
         }
 
-        function saveStateToMemoryMemory() {
-            if(fabricCanvas && activeBookFile) {
-                const key = getUniqueKey();
-                globalSavedNotes[key] = fabricCanvas.toJSON();
+        // --- AUTOMATIC SESSION RESTORE SYNC ---
+        function getStorageKey() {
+            return `${currentSection}_${activeBook.title}_page_${pageNum}`;
+        }
+
+        function loadSavedNotes() {
+            const key = getStorageKey();
+            if (pageDrawings[key]) {
+                fabricCanvas.loadFromJSON(pageDrawings[key], fabricCanvas.renderAll.bind(fabricCanvas));
+            }
+        }
+
+        function saveTemporaryDrawing() {
+            if (fabricCanvas && activeBook) {
+                const key = getStorageKey();
+                pageDrawings[key] = fabricCanvas.toJSON();
             }
         }
 
         function saveAllNotes() {
-            saveStateToMemoryMemory();
-            localStorage.setItem('mes_board_annotations_v3', JSON.stringify(globalSavedNotes));
+            saveTemporaryDrawing();
+            localStorage.setItem('smartboard_apple_notes', JSON.stringify(pageDrawings));
             showToast();
         }
 
         function showToast() {
             const toast = document.getElementById('toast');
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2500);
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 2500);
         }
 
-        function setTool(tool) {
-            currentTool = tool;
-            document.getElementById('btn-pen').classList.remove('active');
-            document.getElementById('btn-highlighter').classList.remove('active');
-            document.getElementById('btn-eraser').classList.remove('active');
-            
-            const selectedBtn = document.getElementById(`btn-${tool}`);
-            if(selectedBtn) selectedBtn.classList.add('active');
-
-            if(!fabricCanvas) return;
-
-            if (tool === 'pen') {
-                fabricCanvas.isDrawingMode = true;
-                fabricCanvas.freeDrawingBrush.color = '#dc2626'; // Vivid red line ink
-                fabricCanvas.freeDrawingBrush.width = 4;
-            } else if (tool === 'highlighter') {
-                fabricCanvas.isDrawingMode = true;
-                fabricCanvas.freeDrawingBrush.color = 'rgba(250, 204, 21, 0.45)'; // Semi-translucent highlight accent
-                fabricCanvas.freeDrawingBrush.width = 24;
-            } else if (tool === 'eraser') {
-                fabricCanvas.isDrawingMode = false;
+        // 60 Seconds Backup Loop Interceptor Engine
+        setInterval(() => {
+            if (activeBook && fabricCanvas) {
+                saveTemporaryDrawing();
+                localStorage.setItem('smartboard_apple_notes', JSON.stringify(pageDrawings));
             }
+        }, 60000);
+
+        function zoom(amount) {
+            scale += amount;
+            if(scale < 0.6) scale = 0.6;
+            if(scale > 2.5) scale = 2.5;
+            renderPage();
         }
 
         function clearBoard() {
-            if(fabricCanvas) {
+            if (fabricCanvas) {
                 fabricCanvas.clear();
-                saveStateToMemoryMemory();
+                saveTemporaryDrawing();
             }
         }
 
-        function changePage(direction) {
-            if(!pdfDoc || pageNum + direction < 1 || pageNum + direction > pdfDoc.numPages) return;
-            saveStateToMemoryMemory();
-            pageNum += direction;
-            renderActivePage();
+        function changePage(offset) {
+            if (!pdfDoc || pageNum + offset <= 0 || pageNum + offset > pdfDoc.numPages) return;
+            saveTemporaryDrawing();
+            pageNum += offset;
+            renderPage();
         }
 
-        function adjustZoom(amount) {
-            scale = Math.max(0.6, Math.min(3.0, scale + amount)); // Clamped boundary logic protection
-            renderActivePage();
+        function closeBook() {
+            saveTemporaryDrawing();
+            if(fabricCanvas) {
+                fabricCanvas.dispose();
+                fabricCanvas = null;
+            }
+            document.getElementById('whiteboard-view').style.display = 'none';
+            document.getElementById('dashboard-view').style.display = 'flex';
         }
 
-        // Initialize display configuration on launch
-        renderDashboardGrid();
+        // Run default initialization mapping
+        renderDashboardBooks();
     </script>
 </body>
 </html>

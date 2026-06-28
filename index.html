@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>MES Campus School - Smart Portal</title>
-    <!-- PDF.js for rendering PDFs -->
+    <!-- PDF.js Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <!-- Fabric.js for drawing layers -->
+    <!-- Fabric.js Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     
     <style>
@@ -15,138 +15,50 @@
             --apple-dark: #1d1d1f;
             --apple-blue: #0071e3;
             --apple-gray: #86868b;
-            --glass: rgba(255, 255, 255, 0.8);
+            --glass: rgba(255, 255, 255, 0.85);
             --border: rgba(0, 0, 0, 0.08);
             --menu-bg: rgba(30, 39, 46, 0.95);
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: var(--apple-bg);
             color: var(--apple-dark);
             -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
+            overflow: hidden; 
+            user-select: none; /* Prevents accidental text selection while panning */
         }
 
-        /* --- DASHBOARD --- */
-        #dashboard-view {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 280px;
-            background-color: var(--glass);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid var(--border);
-            padding: 30px 20px;
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-        }
-
-        .sidebar h2 {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 30px;
-            padding-left: 10px;
-            letter-spacing: -0.5px;
-        }
-
-        .nav-group { margin-bottom: 25px; }
-
-        .nav-group label {
-            display: block;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--apple-gray);
-            margin-bottom: 10px;
-            padding-left: 10px;
-            font-weight: 700;
-        }
-
+        /* --- DASHBOARD UI --- */
+        #dashboard-view { display: flex; min-height: 100vh; background: var(--light); color: var(--dark); }
+        .sidebar { width: 280px; background: white; padding: 30px; box-shadow: 2px 0 10px rgba(0,0,0,0.05); overflow-y: auto; }
+        .sidebar h2 { font-size: 20px; margin-bottom: 25px; color: var(--dark); }
+        .nav-group { margin-bottom: 20px; }
+        .nav-group label { display: block; font-size: 11px; text-transform: uppercase; color: #888; margin-bottom: 8px; font-weight: bold; }
         .nav-btn {
-            display: block;
-            width: 100%;
-            padding: 12px 14px;
-            background: none;
-            border: none;
-            color: var(--apple-dark);
-            text-align: left;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-            margin-bottom: 4px;
+            display: block; width: 100%; padding: 12px; border: none; background: #f1f2f6; 
+            border-radius: 8px; margin-bottom: 8px; cursor: pointer; text-align: left; font-size: 14px; font-weight: 500; transition: 0.2s;
         }
+        .nav-btn.active { background: var(--apple-blue); color: white; }
+        .special-btn { background: linear-gradient(135deg, #0071e3, #34c759); color: white; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-        .nav-btn:hover { background-color: rgba(0, 0, 0, 0.04); }
-        .nav-btn.active { background-color: var(--apple-blue); color: white; }
-
-        .special-btn { 
-            background: linear-gradient(135deg, #0071e3, #34c759); 
-            color: white; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-        }
-
-        .main-content {
-            flex-grow: 1;
-            padding: 40px;
-            overflow-y: auto;
-        }
-
-        .header h1 { font-size: 32px; font-weight: 700; margin: 0; letter-spacing: -1px; }
-        .header p { color: var(--apple-gray); margin-top: 8px; font-size: 16px; }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 25px;
-            margin-top: 35px;
-        }
-
-        .book-card {
-            background: white;
-            border-radius: 18px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid var(--border);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-
-        .book-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.06);
-            border-color: rgba(0, 0, 0, 0.15);
-        }
-
-        .book-icon { font-size: 44px; margin-bottom: 15px; }
+        .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
+        .book-card { background: white; padding: 20px; border-radius: 12px; text-align: center; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.2s;}
+        .book-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-color: rgba(0,0,0,0.15);}
+        .book-icon { font-size: 40px; margin-bottom: 10px; }
         .book-title { font-weight: 600; color: var(--apple-dark); font-size: 14px; line-height: 1.4; }
 
-        /* --- WHITEBOARD VIEW & CONTINUOUS SCROLL --- */
-        #whiteboard-view {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            padding: 0;
-            background-color: #e5e5ea;
-            min-height: 100vh;
-            box-sizing: border-box;
-            position: relative;
-        }
-
+        /* --- WHITEBOARD & VIEWPORT --- */
+        #whiteboard-view { display: none; width: 100vw; height: 100vh; position: relative; background: #dcdde1; }
+        
         #viewport {
-            width: 100%; height: 100%; overflow: auto; position: relative; touch-action: auto;
-            padding-bottom: 150px; 
+            width: 100%; height: 100%; overflow: auto; position: relative; touch-action: none;
         }
 
         #board-wrapper {
-            position: relative; margin: 80px auto; 
+            position: relative; margin: 40px auto; 
             display: flex; flex-direction: column; align-items: center; gap: 20px;
             transform-origin: top center; transition: transform 0.1s ease-out;
         }
@@ -160,84 +72,79 @@
         #pdf-layer { z-index: 5; }
         .canvas-container { z-index: 10; }
 
-        /* --- TOP NAVIGATION BAR --- */
-        .top-nav {
-            position: fixed; top: 20px; left: 20px; right: 20px; z-index: 50; display: flex; gap: 10px;
-            background: var(--menu-bg); padding: 10px 20px; border-radius: 20px; color: white; align-items: center; justify-content: space-between;
-            border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);
-        }
-        .nav-group-left, .nav-group-right { display: flex; gap: 10px; align-items: center;}
-        .top-nav button { background: transparent; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 12px; color: white; cursor: pointer; font-weight: bold; transition: 0.2s;}
-        .top-nav button:hover { background: rgba(255,255,255,0.1); }
-        
-        #toast { display: none; position: fixed; top: 80px; right: 20px; background: #34c759; color: white; padding: 15px 25px; border-radius: 10px; z-index: 1000; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2);}
-
-        /* --- SENSES OS RADIAL DOCK --- */
+        /* --- INTEGRATED SENSES OS DOCK --- */
         .senses-dock {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 15px;
+            z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 10px;
         }
 
+        /* Top Row: System Controls (Home, Zoom, Export) */
+        .system-container {
+            display: flex; gap: 8px; background: rgba(255, 255, 255, 0.9); padding: 8px 15px;
+            border-radius: 30px; backdrop-filter: blur(10px); box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            opacity: 0; transform: translateY(10px) scale(0.9); pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* Bottom Row: Drawing Tools */
         .tools-container {
             display: flex; gap: 8px; background: var(--menu-bg); padding: 12px 20px;
             border-radius: 40px; backdrop-filter: blur(10px); flex-wrap: wrap; justify-content: center;
             opacity: 0; transform: translateY(20px) scale(0.9); pointer-events: none;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            max-width: 90vw; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .tools-container.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
+        .tools-container.open, .system-container.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
 
         .tool-btn {
             background: transparent; border: none; color: white; font-size: 20px;
-            width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
+            width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
             display: flex; justify-content: center; align-items: center; transition: 0.2s;
         }
         .tool-btn:hover { background: rgba(255,255,255,0.2); }
         .tool-btn.active { background: var(--apple-blue); box-shadow: 0 0 10px rgba(0, 113, 227, 0.5); }
+        
+        .sys-btn {
+            background: transparent; border: none; color: var(--apple-dark); font-size: 16px;
+            padding: 6px 12px; border-radius: 20px; cursor: pointer; font-weight: 600; transition: 0.2s;
+        }
+        .sys-btn:hover { background: rgba(0,0,0,0.05); }
 
         .master-btn {
-            width: 65px; height: 65px; border-radius: 50%; border: none;
-            background: var(--apple-blue); color: white; font-size: 28px; cursor: pointer;
+            width: 60px; height: 60px; border-radius: 50%; border: none;
+            background: var(--apple-blue); color: white; font-size: 26px; cursor: pointer;
             box-shadow: 0 4px 15px rgba(0, 113, 227, 0.4); z-index: 101; transition: 0.3s;
         }
         .master-btn.open { transform: rotate(45deg); background: #ff3b30; box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4); }
-
-        #native-color { width: 45px; height: 45px; padding: 0; border: 2px solid white; border-radius: 50%; cursor: pointer; overflow: hidden; }
-        #native-color::-webkit-color-swatch-wrapper { padding: 0; }
-        #native-color::-webkit-color-swatch { border: none; }
 
         .thickness-select {
             background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white;
             border-radius: 20px; padding: 0 10px; font-weight: bold; outline: none; cursor: pointer;
         }
 
-        /* --- MOBILE RESPONSIVE UPGRADES --- */
-        @media (max-width: 768px) {
-            #dashboard-view { flex-direction: column; }
-            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); padding: 15px; }
-            .main-content { padding: 15px; }
-            
-            /* Restructure top nav to fit phone screens */
-            .top-nav {
-                flex-direction: column; padding: 10px; top: 10px; left: 10px; right: 10px; gap: 10px; border-radius: 12px;
-            }
-            .nav-group-left, .nav-group-right { flex-wrap: wrap; justify-content: center; width: 100%; gap: 5px; }
-            .top-nav button { padding: 8px 10px; font-size: 12px; flex: 1 1 auto; }
-            
-            #board-wrapper { margin: 120px auto 100px; } /* Prevent top-nav from blocking document */
-            
-            /* Shrink radial menu for phones */
-            .senses-dock { bottom: 15px; }
-            .tools-container { padding: 10px; gap: 6px; border-radius: 20px; }
-            .tool-btn { width: 36px; height: 36px; font-size: 16px; }
-            .master-btn { width: 55px; height: 55px; font-size: 24px; }
-            #native-color { width: 36px; height: 36px; }
-            .thickness-select { height: 36px; font-size: 12px; }
+        /* --- APPLE UI COLOR PALETTE --- */
+        .color-trigger {
+            width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s; margin: 0 5px;
         }
         
+        .apple-palette {
+            display: none; position: absolute; bottom: 85px; background: rgba(250, 250, 250, 0.95);
+            backdrop-filter: blur(20px); border-radius: 16px; padding: 15px;
+            grid-template-columns: repeat(4, 1fr); gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid rgba(0,0,0,0.05); z-index: 105;
+        }
+        .apple-palette.show { display: grid; }
+        .swatch { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; transition: 0.1s; border: 2px solid transparent;}
+        .swatch:hover { transform: scale(1.15); }
+        .swatch.active { border-color: var(--apple-dark); transform: scale(1.15); }
+
+        #toast { display: none; position: fixed; top: 40px; right: 20px; background: #34c759; color: white; padding: 15px 25px; border-radius: 10px; z-index: 1000; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2);}
+
         @media print {
-            .top-nav, .senses-dock, #toast { display: none !important; }
+            .senses-dock, #toast { display: none !important; }
             #viewport { overflow: visible !important; height: auto !important; padding: 0 !important; }
             #board-wrapper { margin: 0 !important; gap: 0 !important; transform: scale(1) !important;}
             .pdf-page-container { box-shadow: none !important; margin-bottom: 0 !important; page-break-after: always; }
@@ -246,66 +153,86 @@
 </head>
 <body>
 
-    <!-- PORTAL DASHBOARD -->
+    <!-- DASHBOARD -->
     <div id="dashboard-view">
         <div class="sidebar">
             <h2>MES Portal 🏫</h2>
+            
             <div class="nav-group">
                 <label>Creative Tools</label>
                 <button class="nav-btn special-btn" onclick="openBlankCanvas()">🪄 Blank Endless Canvas</button>
             </div>
+            
             <div class="nav-group">
                 <label>Languages</label>
                 <button id="btn-English" class="nav-btn active" onclick="selectSection('English')">📝 English</button>
                 <button id="btn-Hindi" class="nav-btn" onclick="selectSection('Hindi')">📙 Hindi</button>
+                <button id="btn-Malayalam" class="nav-btn" onclick="selectSection('Malayalam')">🌴 Malayalam</button>
             </div>
+            
             <div class="nav-group">
-                <label>Mathematics</label>
+                <label>Science & Math</label>
                 <button id="btn-MathsPart1" class="nav-btn" onclick="selectSection('MathsPart1')">📐 Maths (Pt 1)</button>
                 <button id="btn-MathsPart2" class="nav-btn" onclick="selectSection('MathsPart2')">📐 Maths (Pt 2)</button>
+                <button id="btn-GS" class="nav-btn" onclick="selectSection('GS')">🔬 General Science</button>
             </div>
+
             <div class="nav-group">
                 <label>Social Science</label>
                 <button id="btn-SSPart1" class="nav-btn" onclick="selectSection('SSPart1')">🌍 SS (Pt 1)</button>
                 <button id="btn-SSPart2" class="nav-btn" onclick="selectSection('SSPart2')">🌍 SS (Pt 2)</button>
             </div>
         </div>
-
         <div class="main-content">
             <h1 id="dashboard-title">English Textbooks</h1>
             <div class="grid" id="books-grid"></div>
         </div>
     </div>
 
-    <!-- WHITEBOARD CONTINUOUS SCROLL -->
+    <!-- WHITEBOARD -->
     <div id="whiteboard-view">
         
-        <div class="top-nav">
-            <div class="nav-group-left">
-                <button onclick="closeBook()" style="background:#ff3b30; border:none;">🏠 Dashboard</button>
-                <div style="width:1px; height:20px; background:rgba(255,255,255,0.2);"></div>
-                <span id="doc-title" style="font-weight: 600;">Loading...</span>
-                <div style="width:1px; height:20px; background:rgba(255,255,255,0.2);"></div>
-                <button onclick="zoomBoard(0.2)">➕ Zoom In</button>
-                <button onclick="zoomBoard(-0.2)">➖ Zoom Out</button>
-            </div>
-            <div class="nav-group-right">
-                <button onclick="exportToPDF()" style="background:#ffcc00; color: #1d1d1f; border:none;">🖨️ Print / Save PDF</button>
-                <button onclick="readAloud()" style="background:#0071e3; border:none;">🗣️ AI Read</button>
-                <button onclick="manualSave()" style="background:#34c759; border:none;">💾 Save Notes</button>
-            </div>
-        </div>
-
         <div id="viewport">
             <div id="board-wrapper">
-                <!-- Pages get injected here -->
+                <!-- Canvases injected here -->
             </div>
         </div>
 
-        <!-- Floating Senses OS Menu -->
+        <!-- INTEGRATED SENSES DOCK -->
         <div class="senses-dock">
+            
+            <!-- Apple Color Palette Popover -->
+            <div class="apple-palette" id="color-palette">
+                <!-- System Colors -->
+                <div class="swatch active" style="background:#ff3b30" onclick="setColor('#ff3b30')"></div>
+                <div class="swatch" style="background:#ff9500" onclick="setColor('#ff9500')"></div>
+                <div class="swatch" style="background:#ffcc00" onclick="setColor('#ffcc00')"></div>
+                <div class="swatch" style="background:#34c759" onclick="setColor('#34c759')"></div>
+                <div class="swatch" style="background:#5ac8fa" onclick="setColor('#5ac8fa')"></div>
+                <div class="swatch" style="background:#007aff" onclick="setColor('#007aff')"></div>
+                <div class="swatch" style="background:#5856d6" onclick="setColor('#5856d6')"></div>
+                <div class="swatch" style="background:#af52de" onclick="setColor('#af52de')"></div>
+                <div class="swatch" style="background:#ff2d55" onclick="setColor('#ff2d55')"></div>
+                <div class="swatch" style="background:#8e8e93" onclick="setColor('#8e8e93')"></div>
+                <div class="swatch" style="background:#1d1d1f" onclick="setColor('#1d1d1f')"></div>
+                <div class="swatch" style="background:#ffffff; border:1px solid #ddd" onclick="setColor('#ffffff')"></div>
+            </div>
+
+            <!-- System Tools (Top Row) -->
+            <div class="system-container" id="system-menu">
+                <button class="sys-btn" style="color:#ff3b30;" onclick="closeBook()">🏠 Home</button>
+                <div style="width:1px; background:rgba(0,0,0,0.1); margin:0 5px;"></div>
+                <button class="sys-btn" onclick="zoomBoard(0.2)">➕ Zoom</button>
+                <button class="sys-btn" onclick="zoomBoard(-0.2)">➖ Zoom</button>
+                <div style="width:1px; background:rgba(0,0,0,0.1); margin:0 5px;"></div>
+                <button class="sys-btn" onclick="readAloud()">🗣️ Read</button>
+                <button class="sys-btn" onclick="exportToPDF()">🖨️ Export</button>
+                <button class="sys-btn" onclick="manualSave()">💾 Save</button>
+            </div>
+
+            <!-- Drawing Tools (Bottom Row) -->
             <div class="tools-container" id="tools-menu">
-                <button class="tool-btn" id="tool-move" onclick="setTool('move')" title="Move Canvas / Scroll Document">✋</button>
+                <button class="tool-btn" id="tool-move" onclick="setTool('move')" title="Pan Canvas">✋</button>
                 <div style="width:1px; background:rgba(255,255,255,0.2); margin:0 5px;"></div>
                 
                 <button class="tool-btn active" id="tool-pen" onclick="setTool('pen')" title="Pen">🖊️</button>
@@ -318,16 +245,20 @@
                     <option value="15">Thick</option>
                 </select>
 
-                <input type="color" id="native-color" value="#ff3b30" onchange="updateProfile()" title="Color Picker">
+                <!-- Custom Apple Color Trigger -->
+                <div class="color-trigger" id="active-color-btn" style="background:#ff3b30" onclick="toggleColorPicker()"></div>
                 
                 <button class="tool-btn" id="tool-eraser" onclick="setTool('eraser')" title="Eraser">🧽</button>
                 <button class="tool-btn" onclick="clearBoard()" title="Clear Board">🗑️</button>
                 
                 <div style="width:1px; background:rgba(255,255,255,0.2); margin:0 5px;"></div>
-                <button class="tool-btn" id="tool-rect" onclick="setTool('rect')" title="Rectangle">⬜</button>
-                <button class="tool-btn" id="tool-circle" onclick="setTool('circle')" title="Circle">⭕</button>
-                <button class="tool-btn" id="tool-triangle" onclick="setTool('triangle')" title="Triangle">🔺</button>
+                
+                <button class="tool-btn" id="tool-rect" onclick="setTool('rect')">⬜</button>
+                <button class="tool-btn" id="tool-circle" onclick="setTool('circle')">⭕</button>
+                <button class="tool-btn" id="tool-triangle" onclick="setTool('triangle')">🔺</button>
             </div>
+            
+            <!-- Radial Toggle Button -->
             <button class="master-btn" id="master-toggle" onclick="toggleMenu()">❖</button>
         </div>
     </div>
@@ -337,6 +268,7 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
+        // --- FULL DATABASE WITH MALAYALAM & GS ---
         const database = {
             "English": [
                 { title: "Intro Material", file: "Subjects/English/Intro.pdf" }, { title: "Chapter 2 - Sec 1", file: "Subjects/English/2 - 1.pdf" },
@@ -357,29 +289,32 @@
                 { title: "Chapter 8", file: "Subjects/Hindi/8.pdf" }, { title: "Chapter 9", file: "Subjects/Hindi/9.pdf" },
                 { title: "Chapter 10", file: "Subjects/Hindi/10.pdf" }
             ],
+            "Malayalam": [{ title: "Malayalam - Chapter 1", file: "Subjects/Malayalam/1.pdf" }, { title: "Malayalam - Chapter 2", file: "Subjects/Malayalam/2.pdf" }],
+            "GS": [{ title: "General Science - Ch 1", file: "Subjects/GS/1.pdf" }, { title: "General Science - Ch 2", file: "Subjects/GS/2.pdf" }],
             "MathsPart1": [{ title: "Maths Pt 1 - Ch 1", file: "Subjects/Maths/Part 1/1.pdf" }, { title: "Maths Pt 1 - Ch 2", file: "Subjects/Maths/Part 1/2.pdf" }],
             "MathsPart2": [{ title: "Maths Pt 2 - Ch 1", file: "Subjects/Maths/Part 2/1.pdf" }, { title: "Maths Pt 2 - Ch 2", file: "Subjects/Maths/Part 2/2.pdf" }],
             "SSPart1": [{ title: "SS Part 1 - Ch 1", file: "Subjects/SS/Part 1/1.pdf" }, { title: "SS Part 1 - Ch 2", file: "Subjects/SS/Part 1/2.pdf" }],
             "SSPart2": [{ title: "SS Part 2 - Ch 1", file: "Subjects/SS/Part 2/1.pdf" }, { title: "SS Part 2 - Ch 2", file: "Subjects/SS/Part 2/2.pdf" }]
         };
 
+        const titleMap = {
+            "English": "English Textbooks", "Hindi": "Hindi Textbooks", "Malayalam": "Malayalam Textbooks", "GS": "General Science",
+            "MathsPart1": "Mathematics - Part 1", "MathsPart2": "Mathematics - Part 2",
+            "SSPart1": "Social Science - Part 1", "SSPart2": "Social Science - Part 2"
+        };
+
         let currentSection = "English";
         let activeBook = null;
         let pdfDoc = null;
-        
         let baseScale = 1.3; 
         let viewZoom = 1.0; 
         
         let fabricCanvases = [];
         let currentTool = 'pen';
+        let activeColor = '#ff3b30';
         let pageDrawings = JSON.parse(localStorage.getItem('smartboard_master_notes')) || {};
 
-        const titleMap = {
-            "English": "English Textbooks", "Hindi": "Hindi Textbooks",
-            "MathsPart1": "Mathematics - Part 1", "MathsPart2": "Mathematics - Part 2",
-            "SSPart1": "Social Science - Part 1", "SSPart2": "Social Science - Part 2"
-        };
-
+        // --- DASHBOARD ROUTING ---
         function selectSection(sectionName) {
             currentSection = sectionName;
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -392,7 +327,6 @@
             const grid = document.getElementById('books-grid');
             grid.innerHTML = "";
             const books = database[currentSection] || [];
-            
             books.forEach(book => {
                 const card = document.createElement('div');
                 card.className = 'book-card';
@@ -404,50 +338,71 @@
 
         function toggleMenu() {
             document.getElementById('tools-menu').classList.toggle('open');
+            document.getElementById('system-menu').classList.toggle('open');
             document.getElementById('master-toggle').classList.toggle('open');
+            document.getElementById('color-palette').classList.remove('show'); // Hide color picker if closing
         }
 
-        // --- BLANK ENDLESS CANVAS ---
+        function toggleColorPicker() {
+            document.getElementById('color-palette').classList.toggle('show');
+        }
+
+        function setColor(hex) {
+            activeColor = hex;
+            document.getElementById('active-color-btn').style.background = hex;
+            
+            document.querySelectorAll('.swatch').forEach(sw => sw.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            toggleColorPicker();
+            updateProfile();
+        }
+
+        // --- BLANK ENDLESS CANVAS ENGINE ---
         function openBlankCanvas() {
             activeBook = { title: "Blank Canvas", isBlank: true };
             viewZoom = 1.0;
             document.getElementById('board-wrapper').style.transform = `scale(1)`;
-            document.getElementById('doc-title').textContent = "Endless Blank Board";
             
             document.getElementById('dashboard-view').style.display = 'none';
             document.getElementById('whiteboard-view').style.display = 'flex';
             
             document.getElementById('tools-menu').classList.add('open');
+            document.getElementById('system-menu').classList.add('open');
             document.getElementById('master-toggle').classList.add('open');
 
             const wrapper = document.getElementById('board-wrapper');
             wrapper.innerHTML = '';
             fabricCanvases = [];
 
+            // Massive 10k x 10k Canvas
             const pageDiv = document.createElement('div');
             pageDiv.className = 'pdf-page-container';
-            pageDiv.style.width = '2000px'; 
-            pageDiv.style.height = '4000px'; 
+            pageDiv.style.width = '10000px'; 
+            pageDiv.style.height = '10000px'; 
 
             const drawCanv = document.createElement('canvas');
-            drawCanv.id = 'blank-layer';
             pageDiv.appendChild(drawCanv);
             wrapper.appendChild(pageDiv);
 
-            const fCanvas = new fabric.Canvas(drawCanv, { width: 2000, height: 4000, isDrawingMode: true, allowTouchScrolling: false });
+            const fCanvas = new fabric.Canvas(drawCanv, { width: 10000, height: 10000, isDrawingMode: true, allowTouchScrolling: false });
             fabricCanvases.push({ canvas: fCanvas, key: `BlankCanvas_Master` });
             setupFabricEvents(fCanvas, `BlankCanvas_Master`);
+
+            // Center the viewport on the huge canvas instantly
+            const viewport = document.getElementById('viewport');
+            viewport.scrollLeft = (10000 - window.innerWidth) / 2;
+            viewport.scrollTop = (10000 - window.innerHeight) / 2;
 
             setTool('pen');
         }
 
-        // --- CONTINUOUS SCROLL PDF ---
+        // --- CONTINUOUS SCROLL PDF ENGINE ---
         function openBook(book) {
             activeBook = book;
             activeBook.isBlank = false;
             viewZoom = 1.0;
             document.getElementById('board-wrapper').style.transform = `scale(1)`;
-            document.getElementById('doc-title').textContent = book.title;
             
             const screenW = window.innerWidth;
             if (screenW < 600) baseScale = 0.6;
@@ -458,6 +413,7 @@
             document.getElementById('whiteboard-view').style.display = 'flex';
             
             document.getElementById('tools-menu').classList.add('open');
+            document.getElementById('system-menu').classList.add('open');
             document.getElementById('master-toggle').classList.add('open');
             
             pdfjsLib.getDocument(book.file).promise.then(pdf => {
@@ -465,7 +421,7 @@
                 renderContinuousPages();
             }).catch(err => {
                 console.error(err);
-                alert("File loading execution error. Ensure path declarations match perfectly.");
+                alert("File loading error. Ensure path declarations match perfectly.");
                 closeBook();
             });
         }
@@ -476,7 +432,6 @@
             fabricCanvases = [];
             
             let promises = [];
-
             for (let num = 1; num <= pdfDoc.numPages; num++) {
                 promises.push(pdfDoc.getPage(num).then(page => {
                     const pageDiv = document.createElement('div');
@@ -503,14 +458,14 @@
                 results.forEach(res => {
                     wrapper.appendChild(res.pageDiv);
                     
-                    const viewport = res.page.getViewport({ scale: baseScale });
-                    res.pageDiv.style.width = `${viewport.width}px`;
-                    res.pageDiv.style.height = `${viewport.height}px`;
-                    res.pdfCanv.width = viewport.width;
-                    res.pdfCanv.height = viewport.height;
+                    const viewportRect = res.page.getViewport({ scale: baseScale });
+                    res.pageDiv.style.width = `${viewportRect.width}px`;
+                    res.pageDiv.style.height = `${viewportRect.height}px`;
+                    res.pdfCanv.width = viewportRect.width;
+                    res.pdfCanv.height = viewportRect.height;
 
-                    res.page.render({ canvasContext: res.pdfCanv.getContext('2d'), viewport: viewport }).promise.then(() => {
-                        const fCanvas = new fabric.Canvas(res.drawCanv, { width: viewport.width, height: viewport.height, isDrawingMode: true, allowTouchScrolling: false });
+                    res.page.render({ canvasContext: res.pdfCanv.getContext('2d'), viewport: viewportRect }).promise.then(() => {
+                        const fCanvas = new fabric.Canvas(res.drawCanv, { width: viewportRect.width, height: viewportRect.height, isDrawingMode: true, allowTouchScrolling: false });
                         const storageKey = `${activeBook.title}_page_${res.num}`;
                         
                         fabricCanvases.push({ canvas: fCanvas, key: storageKey });
@@ -553,21 +508,17 @@
                 }
 
                 if (['rect', 'circle', 'triangle'].includes(currentTool)) {
-                    // BUG FIX: Prevents creating a new shape when clicking to move an existing one
-                    if (options.target) return; 
+                    if (options.target) return; // Prevent shape duping on click
                     
                     isDrawingShape = true;
                     const pointer = fCanvas.getPointer(options.e);
                     shapeStartX = pointer.x; shapeStartY = pointer.y;
                     const weight = parseInt(document.getElementById('brush-weight').value);
 
-                    if (currentTool === 'rect') {
-                        tempObj = new fabric.Rect({ left: shapeStartX, top: shapeStartY, width: 0, height: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
-                    } else if (currentTool === 'circle') {
-                        tempObj = new fabric.Circle({ left: shapeStartX, top: shapeStartY, radius: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
-                    } else if (currentTool === 'triangle') {
-                        tempObj = new fabric.Triangle({ left: shapeStartX, top: shapeStartY, width: 0, height: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
-                    }
+                    if (currentTool === 'rect') tempObj = new fabric.Rect({ left: shapeStartX, top: shapeStartY, width: 0, height: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
+                    else if (currentTool === 'circle') tempObj = new fabric.Circle({ left: shapeStartX, top: shapeStartY, radius: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
+                    else if (currentTool === 'triangle') tempObj = new fabric.Triangle({ left: shapeStartX, top: shapeStartY, width: 0, height: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
+                    
                     fCanvas.add(tempObj);
                 }
             });
@@ -593,8 +544,7 @@
 
             fCanvas.on('mouse:up', function() {
                 if (isDrawingShape) {
-                    isDrawingShape = false;
-                    tempObj = null;
+                    isDrawingShape = false; tempObj = null;
                     pageDrawings[storageKey] = fCanvas.toJSON();
                 }
             });
@@ -603,13 +553,40 @@
             fCanvas.on('object:modified', () => pageDrawings[storageKey] = fCanvas.toJSON());
         }
 
-        // --- HARDWARE TOOL BELT ---
+        // --- CLICK & DRAG TO PAN ENGINE ---
+        const viewportContainer = document.getElementById('viewport');
+        let isPanning = false, panStartX, panStartY, scrollL, scrollT;
+
+        viewportContainer.addEventListener('mousedown', (e) => {
+            if (currentTool !== 'move') return;
+            isPanning = true;
+            viewportContainer.style.cursor = 'grabbing';
+            panStartX = e.pageX;
+            panStartY = e.pageY;
+            scrollL = viewportContainer.scrollLeft;
+            scrollT = viewportContainer.scrollTop;
+        });
+
+        window.addEventListener('mouseup', () => { 
+            isPanning = false; 
+            if(currentTool === 'move') viewportContainer.style.cursor = 'grab'; 
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isPanning || currentTool !== 'move') return;
+            e.preventDefault();
+            const x = e.pageX;
+            const y = e.pageY;
+            viewportContainer.scrollLeft = scrollL - (x - panStartX);
+            viewportContainer.scrollTop = scrollT - (y - panStartY);
+        });
+
+        // --- HARDWARE TOOL ROUTING ---
         function setTool(tool) {
             currentTool = tool;
             document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
             if(document.getElementById(`tool-${tool}`)) document.getElementById(`tool-${tool}`).classList.add('active');
 
-            const viewportEl = document.getElementById('viewport');
             const wrapper = document.getElementById('board-wrapper');
 
             if (tool === 'move') {
@@ -619,12 +596,10 @@
                     fc.canvas.forEachObject(o => o.selectable = false);
                 });
                 wrapper.style.pointerEvents = 'none'; 
-                viewportEl.style.touchAction = 'auto'; 
-                viewportEl.style.cursor = 'grab'; // Desktop cursor upgrade
+                viewportContainer.style.cursor = 'grab';
             } else {
                 wrapper.style.pointerEvents = 'all'; 
-                viewportEl.style.touchAction = 'none';
-                viewportEl.style.cursor = 'default';
+                viewportContainer.style.cursor = 'default';
 
                 fabricCanvases.forEach(fc => {
                     fc.canvas.selection = true;
@@ -641,7 +616,6 @@
         }
 
         function updateProfile() {
-            activeColor = document.getElementById('native-color').value;
             const weight = parseInt(document.getElementById('brush-weight').value);
 
             fabricCanvases.forEach(fc => {
@@ -658,47 +632,13 @@
             });
         }
 
-        // --- DESKTOP DRAG TO PAN (MOVE TOOL BUG FIX) ---
-        const viewportContainer = document.getElementById('viewport');
-        let isPanning = false, panStartX, panStartY, scrollL, scrollT;
-
-        viewportContainer.addEventListener('mousedown', (e) => {
-            if (currentTool !== 'move') return;
-            isPanning = true;
-            viewportContainer.style.cursor = 'grabbing';
-            panStartX = e.pageX - viewportContainer.offsetLeft;
-            panStartY = e.pageY - viewportContainer.offsetTop;
-            scrollL = viewportContainer.scrollLeft;
-            scrollT = viewportContainer.scrollTop;
-        });
-        viewportContainer.addEventListener('mouseleave', () => { 
-            isPanning = false; 
-            if(currentTool === 'move') viewportContainer.style.cursor = 'grab'; 
-        });
-        viewportContainer.addEventListener('mouseup', () => { 
-            isPanning = false; 
-            if(currentTool === 'move') viewportContainer.style.cursor = 'grab'; 
-        });
-        viewportContainer.addEventListener('mousemove', (e) => {
-            if (!isPanning || currentTool !== 'move') return;
-            e.preventDefault();
-            const x = e.pageX - viewportContainer.offsetLeft;
-            const y = e.pageY - viewportContainer.offsetTop;
-            viewportContainer.scrollLeft = scrollL - (x - panStartX);
-            viewportContainer.scrollTop = scrollT - (y - panStartY);
-        });
-
         // --- PERFECT-SYNC ZOOM ENGINE ---
         function zoomBoard(amount) {
             viewZoom += amount;
             if (viewZoom < 0.4) viewZoom = 0.4;
             if (viewZoom > 3.0) viewZoom = 3.0;
-            
             document.getElementById('board-wrapper').style.transform = `scale(${viewZoom})`;
-            
-            setTimeout(() => { 
-                fabricCanvases.forEach(fc => fc.canvas.calcOffset()); 
-            }, 150);
+            setTimeout(() => { fabricCanvases.forEach(fc => fc.canvas.calcOffset()); }, 150);
         }
 
         // --- AI READ ALOUD ---
@@ -713,13 +653,10 @@
                     foundText = true;
                 }
             });
-            if(!foundText) alert("Please use the 🔤 Text tool to type, select the text, then press AI Read Aloud.");
+            if(!foundText) alert("Please use the 🔤 Text tool to type, select the text, then press Read.");
         }
 
-        function exportToPDF() {
-            if (!activeBook) return;
-            window.print();
-        }
+        function exportToPDF() { if (activeBook) window.print(); }
 
         function manualSave() {
             localStorage.setItem('smartboard_master_notes', JSON.stringify(pageDrawings));
@@ -745,7 +682,6 @@
             manualSave();
             fabricCanvases.forEach(fc => fc.canvas.dispose());
             fabricCanvases = [];
-            
             document.getElementById('whiteboard-view').style.display = 'none';
             document.getElementById('dashboard-view').style.display = 'flex';
         }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>MES Campus School - Smart Portal</title>
+    <title>MES Campus School - Smart Portal Master</title>
     <!-- PDF.js for rendering PDFs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <!-- Fabric.js for drawing layers -->
@@ -15,224 +15,155 @@
             --apple-dark: #1d1d1f;
             --apple-blue: #0071e3;
             --apple-gray: #86868b;
-            --glass: rgba(255, 255, 255, 0.8);
+            --glass: rgba(255, 255, 255, 0.85);
             --border: rgba(0, 0, 0, 0.08);
+            --menu-bg: rgba(30, 39, 46, 0.95);
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: var(--apple-bg);
             color: var(--apple-dark);
             -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         /* --- DASHBOARD --- */
-        #dashboard-view {
-            display: flex;
-            min-height: 100vh;
-        }
-
+        #dashboard-view { display: flex; min-height: 100vh; }
         .sidebar {
-            width: 280px;
-            background-color: var(--glass);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid var(--border);
-            padding: 30px 20px;
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
+            width: 280px; background-color: var(--glass); backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border); padding: 30px 20px;
+            display: flex; flex-direction: column; flex-shrink: 0;
         }
-
-        .sidebar h2 {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 30px;
-            padding-left: 10px;
-            letter-spacing: -0.5px;
-        }
-
+        .sidebar h2 { font-size: 20px; font-weight: 600; margin-bottom: 30px; padding-left: 10px; letter-spacing: -0.5px; }
         .nav-group { margin-bottom: 25px; }
-
         .nav-group label {
-            display: block;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--apple-gray);
-            margin-bottom: 10px;
-            padding-left: 10px;
-            font-weight: 700;
+            display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--apple-gray); margin-bottom: 10px; padding-left: 10px; font-weight: 700;
         }
-
         .nav-btn {
-            display: block;
-            width: 100%;
-            padding: 12px 14px;
-            background: none;
-            border: none;
-            color: var(--apple-dark);
-            text-align: left;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-            margin-bottom: 4px;
+            display: block; width: 100%; padding: 12px 14px; background: none; border: none;
+            color: var(--apple-dark); text-align: left; font-size: 14px; font-weight: 500;
+            cursor: pointer; border-radius: 10px; transition: all 0.2s ease; margin-bottom: 4px;
         }
-
         .nav-btn:hover { background-color: rgba(0, 0, 0, 0.04); }
         .nav-btn.active { background-color: var(--apple-blue); color: white; }
 
-        .main-content {
-            flex-grow: 1;
-            padding: 40px;
-            overflow-y: auto;
-        }
-
+        .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; }
         .header h1 { font-size: 32px; font-weight: 700; margin: 0; letter-spacing: -1px; }
         .header p { color: var(--apple-gray); margin-top: 8px; font-size: 16px; }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 25px;
-            margin-top: 35px;
-        }
-
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 25px; margin-top: 35px; }
         .book-card {
-            background: white;
-            border-radius: 18px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid var(--border);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            background: white; border-radius: 18px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            text-align: center; cursor: pointer; border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-
-        .book-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.06);
-            border-color: rgba(0, 0, 0, 0.15);
-        }
-
+        .book-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); border-color: rgba(0, 0, 0, 0.15); }
         .book-icon { font-size: 44px; margin-bottom: 15px; }
         .book-title { font-weight: 600; color: var(--apple-dark); font-size: 14px; line-height: 1.4; }
 
         /* --- WHITEBOARD VIEW & RESPONSIVE CANVAS CONTAINER --- */
         #whiteboard-view {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-            background-color: #e5e5ea;
-            min-height: 100vh;
-            box-sizing: border-box;
+            display: none; flex-direction: column; align-items: center;
+            background-color: #e5e5ea; min-height: 100vh; box-sizing: border-box; position: relative;
         }
 
+        /* Top Nav Control Bar */
         .apple-toolbar {
-            background-color: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(30px);
-            padding: 8px 20px;
-            border-radius: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            border: 1px solid rgba(255,255,255,0.4);
-            z-index: 30;
-            flex-wrap: wrap;
-            justify-content: center;
+            background-color: var(--glass); backdrop-filter: blur(30px);
+            padding: 10px 20px; border-radius: 20px; margin: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08); display: flex; gap: 10px;
+            align-items: center; border: 1px solid rgba(255,255,255,0.4); z-index: 30;
+            width: 95%; justify-content: space-between;
         }
-
-        .apple-toolbar button, .apple-toolbar select {
-            padding: 8px 12px;
-            font-size: 13px;
-            cursor: pointer;
-            border: 1px solid rgba(0,0,0,0.05);
-            border-radius: 12px;
-            background-color: white;
-            color: var(--apple-dark);
-            font-weight: 500;
-            transition: all 0.15s ease;
-            touch-action: manipulation; /* Optimizes tap delays on mobile */
+        .nav-group-left, .nav-group-right { display: flex; gap: 8px; align-items: center; }
+        .apple-toolbar button {
+            padding: 8px 14px; font-size: 13px; cursor: pointer; border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 12px; background-color: white; color: var(--apple-dark);
+            font-weight: 500; transition: all 0.15s ease; touch-action: manipulation;
         }
-
         .apple-toolbar button:hover { background-color: #f5f5f7; }
-        .apple-toolbar button.active { background-color: var(--apple-dark); color: white; }
-        
-        .color-picker-group { display: flex; gap: 6px; margin: 0 4px; }
-        .color-dot {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: transform 0.1s ease;
-        }
-        .color-dot.selected { border-color: var(--apple-dark); transform: scale(1.15); }
 
-        /* Outer Frame wraps around to allow smooth touch dragging without page breaking */
+        /* Viewport wrapper handles panning (Move Tool) natively */
         #canvas-viewport-wrapper {
-            width: 100%;
-            max-width: 100%;
-            overflow: auto; /* Handles massive overflow on tiny smartphone screens smoothly */
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding-bottom: 20px;
+            width: 100%; flex-grow: 1; overflow: auto; display: flex;
+            justify-content: flex-start; align-items: flex-start; padding: 20px; box-sizing: border-box;
+            touch-action: none; /* Toggled by JS when Move tool is selected */
         }
 
         #board-container {
-            position: relative;
-            background: white;
-            border-radius: 12px;
+            position: relative; background: white; border-radius: 12px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            touch-action: none; /* Crucial: Prevents smartboard gestures from scrolling the web view */
+            transform-origin: top left; transition: transform 0.15s ease-out; /* Smooth Zoom Effect */
+            margin: 0 auto;
         }
 
-        #pdf-layer, .canvas-container {
-            position: absolute !important;
-            top: 0;
-            left: 0;
-        }
-        #pdf-layer { z-index: 5; }
+        #pdf-layer, .canvas-container { position: absolute !important; top: 0; left: 0; }
+        #pdf-layer { z-index: 5; border-radius: 12px; overflow: hidden; }
         .canvas-container { z-index: 10; }
         #page-info { font-weight: 600; color: var(--apple-dark); margin: 0 8px; font-size: 13px; }
+
+        /* --- SENSES OS EXPANDING RADIAL MENU --- */
+        .senses-dock {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 15px;
+        }
+
+        .tools-container {
+            display: flex; gap: 8px; background: var(--menu-bg); padding: 12px 20px;
+            border-radius: 40px; backdrop-filter: blur(15px); flex-wrap: wrap; justify-content: center;
+            opacity: 0; transform: translateY(20px) scale(0.9); pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 90vw; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .tools-container.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
+
+        .tool-btn {
+            background: transparent; border: none; color: white; font-size: 20px;
+            width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; transition: 0.2s;
+        }
+        .tool-btn:hover { background: rgba(255,255,255,0.2); }
+        .tool-btn.active { background: var(--apple-blue); box-shadow: 0 0 12px rgba(0, 113, 227, 0.6); }
+
+        .master-btn {
+            width: 60px; height: 60px; border-radius: 50%; border: none;
+            background: var(--apple-blue); color: white; font-size: 26px; cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0, 113, 227, 0.4); z-index: 101; transition: 0.3s;
+        }
+        .master-btn.open { transform: rotate(45deg); background: #ff3b30; box-shadow: 0 6px 20px rgba(255, 59, 48, 0.4); }
+
+        #native-color { width: 40px; height: 40px; padding: 0; border: 2px solid white; border-radius: 50%; cursor: pointer; overflow: hidden; }
+        #native-color::-webkit-color-swatch-wrapper { padding: 0; }
+        #native-color::-webkit-color-swatch { border: none; }
         
+        .thickness-select {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white;
+            border-radius: 20px; padding: 0 10px; font-weight: bold; outline: none; cursor: pointer; height: 40px;
+        }
+        
+        /* Auto-Save Toast */
         #toast {
-            display: none;
-            position: fixed;
-            bottom: 30px;
-            background: var(--apple-dark);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 14px;
-            z-index: 100;
-            font-weight: 500;
-            font-size: 14px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            animation: slideUp 0.3s ease;
+            display: none; position: fixed; bottom: 120px; background: var(--apple-dark);
+            color: white; padding: 12px 24px; border-radius: 14px; z-index: 100; font-weight: 500;
+            font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); animation: slideUp 0.3s ease;
         }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* Responsive Layout Overrides */
+        /* Responsive Layout */
         @media (max-width: 768px) {
             #dashboard-view { flex-direction: column; }
             .sidebar { width: 100%; box-sizing: border-box; border-right: none; border-bottom: 1px solid var(--border); }
             .main-content { padding: 25px; }
-            .apple-toolbar { gap: 6px; padding: 8px; border-radius: 14px; }
-            .apple-toolbar button { padding: 6px 10px; font-size: 12px; }
+            .apple-toolbar { width: 98%; padding: 8px; margin: 5px; flex-direction: column;}
         }
     </style>
 </head>
 <body>
 
-    <!-- SCREEN 1: PORTAL DASHBOARD -->
+    <!-- DASHBOARD -->
     <div id="dashboard-view">
         <div class="sidebar">
             <h2>MES Campus School 🏫</h2>
@@ -262,123 +193,109 @@
         </div>
     </div>
 
-    <!-- SCREEN 2: INTERACTIVE STUDIO WHITEBOARD -->
+    <!-- WHITEBOARD -->
     <div id="whiteboard-view">
+        
+        <!-- Standard Top UI -->
         <div class="apple-toolbar">
-            <button onclick="closeBook()" style="background-color: #ff3b30; color: white; border: none;">🏠 Exit</button>
-            <div style="width: 1px; height: 20px; background: var(--border);"></div>
-            
-            <button onclick="changePage(-1)">⬅️</button>
-            <span id="page-info">Page: 1 / ?</span>
-            <button onclick="changePage(1)">➡️</button>
-            
-            <div style="width: 1px; height: 20px; background: var(--border);"></div>
-            
-            <button id="btn-pen" onclick="setTool('pen')" class="active">🖊️ Pen</button>
-            <button id="btn-highlighter" onclick="setTool('highlighter')">🖍️ Highlight</button>
-            <button id="btn-eraser" onclick="setTool('eraser')">🗑️ Eraser</button>
-            
-            <select id="brush-weight" onchange="updateBrushProfile()">
-                <option value="2">Fine Tip (2px)</option>
-                <option value="5" selected>Medium Marker (5px)</option>
-                <option value="12">Thick Board Marker (12px)</option>
-            </select>
-            
-            <div style="width: 1px; height: 20px; background: var(--border);"></div>
-            
-            <div class="color-picker-group">
-                <div class="color-dot selected" style="background: #ff3b30;" onclick="changeColor('#ff3b30', this)"></div>
-                <div class="color-dot" style="background: #0071e3;" onclick="changeColor('#0071e3', this)"></div>
-                <div class="color-dot" style="background: #34c759;" onclick="changeColor('#34c759', this)"></div>
-                <div class="color-dot" style="background: #ffcc00;" onclick="changeColor('#ffcc00', this)"></div>
-                <div class="color-dot" style="background: #1d1d1f;" onclick="changeColor('#1d1d1f', this)"></div>
+            <div class="nav-group-left">
+                <button onclick="closeBook()" style="background-color: #ff3b30; color: white; border: none;">🏠 Exit</button>
+                <button onclick="changePage(-1)">⬅️ Prev</button>
+                <span id="page-info">Page: 1 / ?</span>
+                <button onclick="changePage(1)">Next ➡️</button>
+                <button onclick="zoomBoard(0.2)">➕ Zoom In</button>
+                <button onclick="zoomBoard(-0.2)">➖ Zoom Out</button>
             </div>
-
-            <div style="width: 1px; height: 20px; background: var(--border);"></div>
-            
-            <button id="btn-rect" onclick="setTool('rect')">⬜ Rect</button>
-            <button id="btn-circle" onclick="setTool('circle')">⭕ Circle</button>
-            <button onclick="clearBoard()">❌ Clear</button>
-            
-            <div style="width: 1px; height: 20px; background: var(--border);"></div>
-            <button onclick="zoom(0.2)">➕</button>
-            <button onclick="zoom(-0.2)">➖</button>
-            
-            <button onclick="saveAllNotes()" style="background-color: #34c759; color: white; border: none; margin-left: 10px;">💾 Save</button>
+            <div class="nav-group-right">
+                <button onclick="exportPage()" style="background-color: #ffcc00; color: #1d1d1f; border: none;">📸 Export PNG</button>
+                <button onclick="readAloud()" style="background-color: #0071e3; color: white; border: none;">🗣️ AI Read Aloud</button>
+                <button onclick="saveAllNotes()" style="background-color: #34c759; color: white; border: none;">💾 Save</button>
+            </div>
         </div>
 
+        <!-- Scrollable/Pannable Workspace -->
         <div id="canvas-viewport-wrapper">
             <div id="board-container">
                 <canvas id="pdf-layer"></canvas>
                 <canvas id="drawing-layer"></canvas>
             </div>
         </div>
+        
+        <!-- Expanding Senses Floating Dock -->
+        <div class="senses-dock">
+            <div class="tools-container" id="tools-menu">
+                <button class="tool-btn" id="tool-move" onclick="setTool('move')" title="Move Canvas">✋</button>
+                <div style="width: 1px; background: rgba(255,255,255,0.2); margin: 0 4px;"></div>
+                
+                <button class="tool-btn active" id="tool-pen" onclick="setTool('pen')" title="Pen">🖊️</button>
+                <button class="tool-btn" id="tool-highlighter" onclick="setTool('highlighter')" title="Highlighter">🖍️</button>
+                <button class="tool-btn" id="tool-text" onclick="setTool('text')" title="Type Text">🔤</button>
+                
+                <select id="brush-weight" class="thickness-select" onchange="updateBrushProfile()">
+                    <option value="2">Fine</option>
+                    <option value="5" selected>Med</option>
+                    <option value="12">Thick</option>
+                </select>
+                
+                <input type="color" id="native-color" value="#ff3b30" onchange="updateBrushProfile()" title="Infinite Color">
+                
+                <div style="width: 1px; background: rgba(255,255,255,0.2); margin: 0 4px;"></div>
+                <button class="tool-btn" id="tool-eraser" onclick="setTool('eraser')" title="Eraser">🧽</button>
+                <button class="tool-btn" onclick="clearBoard()" title="Clear Board">🗑️</button>
+                
+                <div style="width: 1px; background: rgba(255,255,255,0.2); margin: 0 4px;"></div>
+                <button class="tool-btn" id="tool-rect" onclick="setTool('rect')" title="Rectangle">⬜</button>
+                <button class="tool-btn" id="tool-circle" onclick="setTool('circle')" title="Circle">⭕</button>
+                <button class="tool-btn" id="tool-triangle" onclick="setTool('triangle')" title="Triangle">🔺</button>
+            </div>
+            
+            <button class="master-btn" id="master-toggle" onclick="toggleMenu()">❖</button>
+        </div>
     </div>
 
-    <div id="toast">Changes Saved Locally ✅</div>
+    <div id="toast">Session Auto-Saved ✅</div>
 
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
         const database = {
             "English": [
-                { title: "Intro Material", file: "Subjects/English/Intro.pdf" },
-                { title: "Chapter 2 - Sec 1", file: "Subjects/English/2 - 1.pdf" },
-                { title: "Chapter 2 - Sec 2", file: "Subjects/English/2 - 2.pdf" },
-                { title: "Chapter 2 - Sec 3", file: "Subjects/English/2 - 3.pdf" },
-                { title: "Chapter 2 - Transcript", file: "Subjects/English/2 - Transcript.pdf" },
-                { title: "Chapter 3 - Sec 1", file: "Subjects/English/3 - 1.pdf" },
-                { title: "Chapter 3 - Sec 2", file: "Subjects/English/3 - 2.pdf" },
-                { title: "Chapter 3 - Sec 3", file: "Subjects/English/3 - 3.pdf" },
-                { title: "Chapter 3 - Transcript", file: "Subjects/English/3 - Transcript.pdf" },
-                { title: "Chapter 4 - Sec 1", file: "Subjects/English/4 - 1.pdf" },
-                { title: "Chapter 4 - Sec 2", file: "Subjects/English/4 - 2.pdf" },
-                { title: "Chapter 4 - Sec 3", file: "Subjects/English/4 - 3.pdf" },
-                { title: "Chapter 4 - Transcript", file: "Subjects/English/4 - Transcript.pdf" },
-                { title: "Chapter 5 - Sec 1", file: "Subjects/English/5 - 1.pdf" },
-                { title: "Chapter 5 - Sec 2", file: "Subjects/English/5 - 2.pdf" },
-                { title: "Chapter 5 - Sec 3", file: "Subjects/English/5 - 3.pdf" },
+                { title: "Intro Material", file: "Subjects/English/Intro.pdf" }, { title: "Chapter 2 - Sec 1", file: "Subjects/English/2 - 1.pdf" },
+                { title: "Chapter 2 - Sec 2", file: "Subjects/English/2 - 2.pdf" }, { title: "Chapter 2 - Sec 3", file: "Subjects/English/2 - 3.pdf" },
+                { title: "Chapter 2 - Transcript", file: "Subjects/English/2 - Transcript.pdf" }, { title: "Chapter 3 - Sec 1", file: "Subjects/English/3 - 1.pdf" },
+                { title: "Chapter 3 - Sec 2", file: "Subjects/English/3 - 2.pdf" }, { title: "Chapter 3 - Sec 3", file: "Subjects/English/3 - 3.pdf" },
+                { title: "Chapter 3 - Transcript", file: "Subjects/English/3 - Transcript.pdf" }, { title: "Chapter 4 - Sec 1", file: "Subjects/English/4 - 1.pdf" },
+                { title: "Chapter 4 - Sec 2", file: "Subjects/English/4 - 2.pdf" }, { title: "Chapter 4 - Sec 3", file: "Subjects/English/4 - 3.pdf" },
+                { title: "Chapter 4 - Transcript", file: "Subjects/English/4 - Transcript.pdf" }, { title: "Chapter 5 - Sec 1", file: "Subjects/English/5 - 1.pdf" },
+                { title: "Chapter 5 - Sec 2", file: "Subjects/English/5 - 2.pdf" }, { title: "Chapter 5 - Sec 3", file: "Subjects/English/5 - 3.pdf" },
                 { title: "Chapter 5 - Transcript", file: "Subjects/English/5 - Transcript.pdf" }
             ],
             "Hindi": [
-                { title: "Introduction", file: "Subjects/Hindi/Intro.pdf" },
-                { title: "Chapter 1", file: "Subjects/Hindi/1.pdf" },
-                { title: "Chapter 2", file: "Subjects/Hindi/2.pdf" },
-                { title: "Chapter 3", file: "Subjects/Hindi/3.pdf" },
-                { title: "Chapter 4", file: "Subjects/Hindi/4.pdf" },
-                { title: "Chapter 5", file: "Subjects/Hindi/5.pdf" },
-                { title: "Chapter 6", file: "Subjects/Hindi/6.pdf" },
-                { title: "Chapter 7", file: "Subjects/Hindi/7.pdf" },
-                { title: "Chapter 8", file: "Subjects/Hindi/8.pdf" },
-                { title: "Chapter 9", file: "Subjects/Hindi/9.pdf" },
+                { title: "Introduction", file: "Subjects/Hindi/Intro.pdf" }, { title: "Chapter 1", file: "Subjects/Hindi/1.pdf" },
+                { title: "Chapter 2", file: "Subjects/Hindi/2.pdf" }, { title: "Chapter 3", file: "Subjects/Hindi/3.pdf" },
+                { title: "Chapter 4", file: "Subjects/Hindi/4.pdf" }, { title: "Chapter 5", file: "Subjects/Hindi/5.pdf" },
+                { title: "Chapter 6", file: "Subjects/Hindi/6.pdf" }, { title: "Chapter 7", file: "Subjects/Hindi/7.pdf" },
+                { title: "Chapter 8", file: "Subjects/Hindi/8.pdf" }, { title: "Chapter 9", file: "Subjects/Hindi/9.pdf" },
                 { title: "Chapter 10", file: "Subjects/Hindi/10.pdf" }
             ],
-            "MathsPart1": [
-                { title: "Maths Part 1 - Chapter 1", file: "Subjects/Maths/Part 1/1.pdf" },
-                { title: "Maths Part 1 - Chapter 2", file: "Subjects/Maths/Part 1/2.pdf" }
-            ],
-            "MathsPart2": [
-                { title: "Maths Part 2 - Chapter 1", file: "Subjects/Maths/Part 2/1.pdf" },
-                { title: "Maths Part 2 - Chapter 2", file: "Subjects/Maths/Part 2/2.pdf" }
-            ],
-            "SSPart1": [
-                { title: "Social Science Part 1 - Chapter 1", file: "Subjects/SS/Part 1/1.pdf" },
-                { title: "Social Science Part 1 - Chapter 2", file: "Subjects/SS/Part 1/2.pdf" }
-            ],
-            "SSPart2": [
-                { title: "Social Science Part 2 - Chapter 1", file: "Subjects/SS/Part 2/1.pdf" },
-                { title: "Social Science Part 2 - Chapter 2", file: "Subjects/SS/Part 2/2.pdf" }
-            ]
+            "MathsPart1": [{ title: "Maths Part 1 - Chapter 1", file: "Subjects/Maths/Part 1/1.pdf" }, { title: "Maths Part 1 - Chapter 2", file: "Subjects/Maths/Part 1/2.pdf" }],
+            "MathsPart2": [{ title: "Maths Part 2 - Chapter 1", file: "Subjects/Maths/Part 2/1.pdf" }, { title: "Maths Part 2 - Chapter 2", file: "Subjects/Maths/Part 2/2.pdf" }],
+            "SSPart1": [{ title: "Social Science Part 1 - Chapter 1", file: "Subjects/SS/Part 1/1.pdf" }, { title: "Social Science Part 1 - Chapter 2", file: "Subjects/SS/Part 1/2.pdf" }],
+            "SSPart2": [{ title: "Social Science Part 2 - Chapter 1", file: "Subjects/SS/Part 2/1.pdf" }, { title: "Social Science Part 2 - Chapter 2", file: "Subjects/SS/Part 2/2.pdf" }]
         };
 
         let currentSection = "English";
         let activeBook = null;
         let pdfDoc = null;
         let pageNum = 1;
-        let scale = 1.4;
+        
+        let baseScale = 1.4; // Render Resolution
+        let viewZoom = 1.0; // Interactive Visual Zoom
+        
         let fabricCanvas = null;
         let activeColor = "#ff3b30"; 
-        let pageDrawings = JSON.parse(localStorage.getItem('smartboard_apple_notes')) || {};
+        let currentTool = 'pen';
+        let pageDrawings = JSON.parse(localStorage.getItem('smartboard_master_notes')) || {};
 
         let isDrawingShape = false;
         let shapeStartX, shapeStartY;
@@ -412,18 +329,28 @@
             });
         }
 
+        function toggleMenu() {
+            document.getElementById('tools-menu').classList.toggle('open');
+            document.getElementById('master-toggle').classList.toggle('open');
+        }
+
         function openBook(book) {
             activeBook = book;
             pageNum = 1;
+            viewZoom = 1.0;
+            document.getElementById('board-container').style.transform = `scale(1)`;
             
-            // Auto-calculate structural scale factor matching the target screen size width dynamically
             const screenWidth = window.innerWidth;
-            if (screenWidth < 600) scale = 0.6;
-            else if (screenWidth < 1024) scale = 1.0;
-            else scale = 1.4; // Desktop and Senses Smartboards
+            if (screenWidth < 600) baseScale = 0.6;
+            else if (screenWidth < 1024) baseScale = 1.0;
+            else baseScale = 1.4; 
             
             document.getElementById('dashboard-view').style.display = 'none';
             document.getElementById('whiteboard-view').style.display = 'flex';
+            
+            // Auto open the Senses Dock
+            document.getElementById('tools-menu').classList.add('open');
+            document.getElementById('master-toggle').classList.add('open');
             
             pdfjsLib.getDocument(book.file).promise.then(pdf => {
                 pdfDoc = pdf;
@@ -441,7 +368,7 @@
             pdfDoc.getPage(pageNum).then(page => {
                 const pdfCanvas = document.getElementById('pdf-layer');
                 const context = pdfCanvas.getContext('2d');
-                const viewport = page.getViewport({ scale: scale });
+                const viewport = page.getViewport({ scale: baseScale });
 
                 pdfCanvas.height = viewport.height;
                 pdfCanvas.width = viewport.width;
@@ -465,56 +392,59 @@
 
         function initFabric(width, height) {
             fabricCanvas = new fabric.Canvas('drawing-layer', {
-                width: width,
-                height: height,
-                isDrawingMode: true,
-                allowTouchScrolling: false // CRUCIAL: Intercepts gestures so touch movements write ink instead of panning the viewport framework
+                width: width, height: height, isDrawingMode: true, allowTouchScrolling: false 
             });
             
             setTool('pen');
             loadSavedNotes();
 
             fabricCanvas.on('mouse:down', function(options) {
+                // Object Eraser
                 if (currentTool === 'eraser' && options.target) {
                     fabricCanvas.remove(options.target);
                     saveTemporaryDrawing();
+                    return;
                 }
-            });
-
-            // --- TOUCH INTERCEPTED CLICK-AND-DRAG VECTOR ENGINE ---
-            fabricCanvas.on('mouse:down', function(o) {
-                if (currentTool !== 'rect' && currentTool !== 'circle') return;
                 
-                isDrawingShape = true;
-                const pointer = fabricCanvas.getPointer(o.e);
-                shapeStartX = pointer.x;
-                shapeStartY = pointer.y;
-                
-                const weight = parseInt(document.getElementById('brush-weight').value);
-
-                if (currentTool === 'rect') {
-                    temporaryShapeObject = new fabric.Rect({
-                        left: shapeStartX, top: shapeStartY,
-                        width: 0, height: 0,
-                        fill: 'transparent', stroke: activeColor, strokeWidth: weight,
-                        selectable: true
+                // AI Text Tool Engine
+                if (currentTool === 'text') {
+                    const pointer = fabricCanvas.getPointer(options.e);
+                    const textObj = new fabric.IText('Type here...', {
+                        left: pointer.x, top: pointer.y, fill: activeColor, fontSize: 32, fontFamily: '-apple-system, sans-serif', fontWeight: 'bold'
                     });
-                } else if (currentTool === 'circle') {
-                    temporaryShapeObject = new fabric.Circle({
-                        left: shapeStartX, top: shapeStartY,
-                        radius: 0,
-                        fill: 'transparent', stroke: activeColor, strokeWidth: weight,
-                        selectable: true
-                    });
+                    fabricCanvas.add(textObj);
+                    fabricCanvas.setActiveObject(textObj);
+                    textObj.enterEditing();
+                    textObj.selectAll();
+                    setTool('pen'); 
+                    saveTemporaryDrawing();
+                    return;
                 }
-                fabricCanvas.add(temporaryShapeObject);
+
+                // Interactive Smart Shapes
+                if (['rect', 'circle', 'triangle'].includes(currentTool)) {
+                    isDrawingShape = true;
+                    const pointer = fabricCanvas.getPointer(options.e);
+                    shapeStartX = pointer.x; shapeStartY = pointer.y;
+                    
+                    const weight = parseInt(document.getElementById('brush-weight').value);
+
+                    if (currentTool === 'rect') {
+                        temporaryShapeObject = new fabric.Rect({ left: shapeStartX, top: shapeStartY, width: 0, height: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
+                    } else if (currentTool === 'circle') {
+                        temporaryShapeObject = new fabric.Circle({ left: shapeStartX, top: shapeStartY, radius: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
+                    } else if (currentTool === 'triangle') {
+                        temporaryShapeObject = new fabric.Triangle({ left: shapeStartX, top: shapeStartY, width: 0, height: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
+                    }
+                    fabricCanvas.add(temporaryShapeObject);
+                }
             });
 
             fabricCanvas.on('mouse:move', function(o) {
                 if (!isDrawingShape) return;
                 const pointer = fabricCanvas.getPointer(o.e);
                 
-                if (currentTool === 'rect') {
+                if (currentTool === 'rect' || currentTool === 'triangle') {
                     if (shapeStartX > pointer.x) temporaryShapeObject.set({ left: Math.abs(pointer.x) });
                     if (shapeStartY > pointer.y) temporaryShapeObject.set({ top: Math.abs(pointer.y) });
                     temporaryShapeObject.set({ width: Math.abs(shapeStartX - pointer.x) });
@@ -542,36 +472,41 @@
             fabricCanvas.on('object:modified', saveTemporaryDrawing);
         }
 
-        let currentTool = 'pen';
+        // --- HARDWARE TOOL BELT ROUTING ---
         function setTool(tool) {
             currentTool = tool;
-            
-            document.getElementById('btn-pen').classList.toggle('active', tool === 'pen');
-            document.getElementById('btn-highlighter').classList.toggle('active', tool === 'highlighter');
-            document.getElementById('btn-eraser').classList.toggle('active', tool === 'eraser');
-            document.getElementById('btn-rect').classList.toggle('active', tool === 'rect');
-            document.getElementById('btn-circle').classList.toggle('active', tool === 'circle');
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            if(document.getElementById(`tool-${tool}`)) document.getElementById(`tool-${tool}`).classList.add('active');
 
-            updateBrushProfile();
-        }
+            const viewport = document.getElementById('canvas-viewport-wrapper');
+            const wrapper = document.getElementById('board-container');
 
-        function changeColor(hex, element) {
-            activeColor = hex;
-            document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('selected'));
-            element.classList.add('selected');
-            updateBrushProfile();
+            // Move / Pan Tool Handler
+            if (tool === 'move') {
+                fabricCanvas.isDrawingMode = false;
+                fabricCanvas.selection = false;
+                fabricCanvas.forEachObject(o => o.selectable = false);
+                wrapper.style.pointerEvents = 'none'; // Enables finger panning on the viewport
+                viewport.style.touchAction = 'auto'; // Re-enable normal browser scroll
+            } else {
+                wrapper.style.pointerEvents = 'all'; // Re-locks canvas for drawing
+                fabricCanvas.selection = true;
+                fabricCanvas.forEachObject(o => o.selectable = true);
+                viewport.style.touchAction = 'none'; // Stops finger scrolling
+
+                if (['rect', 'circle', 'triangle', 'eraser', 'text'].includes(tool)) {
+                    fabricCanvas.isDrawingMode = false;
+                } else {
+                    fabricCanvas.isDrawingMode = true;
+                    updateBrushProfile();
+                }
+            }
         }
 
         function updateBrushProfile() {
             if (!fabricCanvas) return;
+            activeColor = document.getElementById('native-color').value;
             const selectedWeight = parseInt(document.getElementById('brush-weight').value);
-
-            if (currentTool === 'rect' || currentTool === 'circle' || currentTool === 'eraser') {
-                fabricCanvas.isDrawingMode = false;
-                return;
-            }
-
-            fabricCanvas.isDrawingMode = true;
 
             if (currentTool === 'pen') {
                 fabricCanvas.freeDrawingBrush.color = activeColor;
@@ -585,6 +520,53 @@
             }
         }
 
+        // --- PERFECT-SYNC ZOOM ENGINE ---
+        function zoomBoard(amount) {
+            viewZoom += amount;
+            if (viewZoom < 0.4) viewZoom = 0.4;
+            if (viewZoom > 3.0) viewZoom = 3.0;
+            
+            // Instantly apply visually
+            document.getElementById('board-container').style.transform = `scale(${viewZoom})`;
+            
+            // Sync drawing math so coordinates don't desync from stylus position
+            if (fabricCanvas) {
+                setTimeout(() => { fabricCanvas.calcOffset(); }, 150);
+            }
+        }
+
+        // --- AI READ ALOUD FEATURE ---
+        function readAloud() {
+            const activeObj = fabricCanvas.getActiveObject();
+            if (activeObj && activeObj.type === 'i-text') {
+                const speech = new SpeechSynthesisUtterance(activeObj.text);
+                speech.lang = 'en-IN'; // Indian English accent
+                window.speechSynthesis.speak(speech);
+            } else {
+                alert("Please use the 🔤 Text tool to type, click to select the text, then press AI Read Aloud.");
+            }
+        }
+
+        // --- EXPORT TO PNG FEATURE ---
+        function exportPage() {
+            if (!activeBook) return;
+            const pdfCanvas = document.getElementById('pdf-layer');
+            const drawCanvas = document.getElementById('drawing-layer');
+            
+            const mergedCanvas = document.createElement('canvas');
+            mergedCanvas.width = pdfCanvas.width; mergedCanvas.height = pdfCanvas.height;
+            const ctx = mergedCanvas.getContext('2d');
+            
+            ctx.drawImage(pdfCanvas, 0, 0);
+            ctx.drawImage(drawCanvas, 0, 0);
+            
+            const link = document.createElement('a');
+            link.download = `${activeBook.title}_Page_${pageNum}_Export.png`;
+            link.href = mergedCanvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // --- STORAGE AND NAVIGATION ---
         function getStorageKey() {
             return `${currentSection}_${activeBook.title}_page_${pageNum}`;
         }
@@ -605,7 +587,7 @@
 
         function saveAllNotes() {
             saveTemporaryDrawing();
-            localStorage.setItem('smartboard_apple_notes', JSON.stringify(pageDrawings));
+            localStorage.setItem('smartboard_master_notes', JSON.stringify(pageDrawings));
             showToast();
         }
 
@@ -615,19 +597,13 @@
             setTimeout(() => toast.style.display = 'none', 2500);
         }
 
+        // Auto-save silently in the background
         setInterval(() => {
             if (activeBook && fabricCanvas) {
                 saveTemporaryDrawing();
-                localStorage.setItem('smartboard_apple_notes', JSON.stringify(pageDrawings));
+                localStorage.setItem('smartboard_master_notes', JSON.stringify(pageDrawings));
             }
         }, 60000);
-
-        function zoom(amount) {
-            scale += amount;
-            if(scale < 0.4) scale = 0.4;
-            if(scale > 2.5) scale = 2.5;
-            renderPage();
-        }
 
         function clearBoard() {
             if (fabricCanvas) {
@@ -653,6 +629,7 @@
             document.getElementById('dashboard-view').style.display = 'flex';
         }
 
+        // Boot Init
         renderDashboardBooks();
     </script>
 </body>

@@ -280,7 +280,12 @@
 
                 <div class="dock-divider"></div>
 
-                <button class="dock-btn" id="tool-eraser" onclick="setTool('eraser')" title="Eraser">🧽</button>
+                <!-- Existing Object Eraser -->
+<button class="dock-btn" id="tool-eraser" onclick="setTool('eraser')" title="Object Eraser">🧽</button>
+
+<!-- UPDATED: Clear Current Page vs Clear Everything -->
+<button class="dock-btn" onclick="clearCurrentPage()" title="Clear This Page Only">📄🧹</button>
+<button class="dock-btn" onclick="clearAllPages()" style="color: #ff3b30;" title="Clear Entire Document">🗑️💥</button>
                 <button class="dock-btn" id="tool-rect" onclick="setTool('rect')">⬜</button>
                 <button class="dock-btn" id="tool-circle" onclick="setTool('circle')">⭕</button>
                 <button class="dock-btn" id="tool-triangle" onclick="setTool('triangle')">🔺</button>
@@ -758,12 +763,57 @@ if (window.PointerEvent) {
             }
         }, 60000);
 
-        function clearBoard() {
-            fabricCanvases.forEach(fc => {
-                fc.canvas.clear();
-                pageDrawings[fc.key] = fc.canvas.toJSON();
-            });
+        // --- SPECIFIC CLEAR ENGINGES ---
+
+// Option A: Wipes out only the page the teacher is currently viewing or drawing on
+function clearCurrentPage() {
+    // Find the canvas layer that currently has active user focus
+    const activeObject = document.activeElement;
+    
+    // Fallback: Clear the active canvas in our engine array loop
+    fabricCanvases.forEach(fc => {
+        if (fc.canvas.getActiveObject() || fabricCanvases.length === 1) {
+            fc.canvas.clear();
+            pageDrawings[fc.key] = fc.canvas.toJSON();
         }
+    });
+    
+    // If no explicit selection, ask the teacher to click on the target page canvas area
+    if (fabricCanvases.length > 1) {
+        const confirmClear = confirm("Click 'OK' to clear notes across all pages, or select an element on a specific page to clear it individually.");
+        if (confirmClear) {
+            clearAllPages();
+        }
+    } else {
+        manualSave(); // Commit empty canvas state to localStorage
+    }
+}
+
+// Option B: The Master Reset loop that clears absolutely everything across all pages
+function clearAllPages() {
+    const doubleCheck = confirm("⚠️ Are you sure you want to clear ALL notes and drawings across every single page in this textbook?");
+    
+    if (doubleCheck) {
+        // Loop through every initialized Fabric instance in the continuous wrapper stack
+        fabricCanvases.forEach(fc => {
+            fc.canvas.clear(); // Wipes drawings off the glass
+            pageDrawings[fc.key] = fc.canvas.toJSON(); // Updates tracking state dictionary to empty string
+        });
+        
+        // Push the completely clean state matrix straight into browser local cache storage
+        localStorage.setItem('smartboard_mac_notes', JSON.stringify(pageDrawings));
+        
+        // Temporarily change the top Mac status bar title to notify the teacher
+        const title = document.getElementById('top-title');
+        const originalText = title.textContent;
+        title.textContent = "Entire Board Reset Clean 🗑️";
+        title.style.color = "#ff3b30";
+        setTimeout(() => { 
+            title.textContent = originalText; 
+            title.style.color = "#666"; 
+        }, 2500);
+    }
+}
 
         function closeBook() {
             manualSave();

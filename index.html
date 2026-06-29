@@ -387,31 +387,82 @@
             document.getElementById('ai-view-container').style.display = 'flex';
         }
 
-        function sendAIMessage() {
-            const input = document.getElementById('ai-input');
-            const chatBox = document.getElementById('chat-box');
-            if (input.value.trim() === "") return;
+// --- LOCAL "SELF-TRAINED" AI ENGINE (NO BACKEND REQUIRED) ---
+function sendAIMessage() {
+    const input = document.getElementById('ai-input');
+    const chatBox = document.getElementById('chat-box');
+    const query = input.value.trim().toLowerCase();
+    
+    if (query === "") return;
 
-            // User Message
-            const userMsg = document.createElement('div');
-            userMsg.className = 'msg user';
-            userMsg.textContent = input.value;
-            chatBox.appendChild(userMsg);
+    // 1. Display Teacher's Message on Screen
+    const userMsg = document.createElement('div');
+    userMsg.className = 'msg user';
+    userMsg.textContent = input.value;
+    chatBox.appendChild(userMsg);
 
-            const query = input.value;
-            input.value = '';
-            chatBox.scrollTop = chatBox.scrollHeight;
+    input.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
 
-            // ⚠️ INSTRUCTION: Replace this setTimeout block with your actual Python/Flask API call!
-            // Example: fetch('https://your-server.com/api/chat', { method: 'POST', body: JSON.stringify({query}) })
-            setTimeout(() => {
-                const aiMsg = document.createElement('div');
-                aiMsg.className = 'msg ai';
-                aiMsg.textContent = "This is a placeholder response. Connect your custom backend API here in the code to fetch real syllabus data!";
-                chatBox.appendChild(aiMsg);
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }, 1000);
+    // 2. "TRAIN" YOUR AI HERE WITH SCRIPTED RESPONSES
+    // You can add as many educational keywords and answers as you want below!
+    const localKnowledgeBase = {
+        "hello": "Hello! I am your local MES SmartOS AI assistant. Ask me for lesson plans, quizzes, or subject guidelines!",
+        "hi": "Hello! How can I assist you with your textbook syllabus today?",
+        
+        // English Training Data
+        "english lesson plan": "📚 **English Chapter 2 Lesson Plan Outline:**\n• **Introduction (10 mins):** Read the introductory story 'Animals, Birds, and Dr. Dolittle'.\n• **Core Activity (20 mins):** Practice pronunciation of core vocabulary and answer text comprehension questions.\n• **Wrap-Up (10 mins):** Students write 3 sentences about their favorite domestic animal.",
+        "english quiz": "📝 **Quick English Pop-Quiz Generator:**\n1. Who is the main character introducing the unit?\n2. Write the antonym of 'Humour'.\n3. True or False: Animals communicate their emotions through distinct body language.",
+        
+        // Malayalam Training Data
+        "malayalam": "🌴 **Malayalam Language Study Framework:**\nFocus heavily on core language structural rules, script definitions, prose dictation, and traditional Kerala cultural history integration checkpoints.",
+        
+        // Maths Training Data
+        "maths quiz": "📐 **Maths Quick Diagnostic Check:**\n1. Solve for $x$: $2x + 5 = 15$.\n2. What is the sum of the angles in a perfect Euclidean triangle?\n3. Calculate the perimeter of a rectangle with a width of 5cm and height of 10cm.",
+        "geometry": "⬜ **Geometry Key Blueprint Formulae:**\n• Area of Rectangle = $\\text{width} \\times \\text{height}$\n• Area of Circle = $\\pi r^2$\n• Angles of a Triangle always sum up to exactly $180^\\circ$.",
+        
+        // General Science (GS) Training Data
+        "science lesson": "🔬 **General Science Chapter 1 Blueprint:**\nFocus elements: Core molecular structures, basic physical chemical properties, and classroom laboratory safety protocols when conducting virtual element mixing experiments.",
+        
+        // General Fallback Instructions
+        "help": "You can ask me things like:\n• 'English Lesson Plan'\n• 'English Quiz'\n• 'Maths Quiz'\n• 'Geometry'\n• 'Science Lesson'"
+    };
+
+    // 3. AI Processing Animation
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'msg ai';
+    loadingMsg.textContent = "🤖 Processing syllabus database...";
+    chatBox.appendChild(loadingMsg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // 4. Match the query to your "trained" local data
+    setTimeout(() => {
+        // Remove processing text
+        chatBox.removeChild(loadingMsg);
+
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'msg ai';
+        
+        // Find if any trained keyword is hidden inside what the teacher typed
+        let matchedResponse = "";
+        for (let keyword in localKnowledgeBase) {
+            if (query.includes(keyword)) {
+                matchedResponse = localKnowledgeBase[keyword];
+                break;
+            }
         }
+
+        // If matched, show response, otherwise show standard intelligent fallback instructions
+        if (matchedResponse !== "") {
+            aiMsg.innerHTML = matchedResponse.replace(/\n/g, "<br>");
+        } else {
+            aiMsg.innerHTML = "🧠 **MES Custom AI Search Note:**<br>I couldn't find an exact match for that specific topic query in my local cache script data.<br><br>Type **'help'** to see a list of topics you can ask me about!";
+        }
+
+        chatBox.appendChild(aiMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }, 600); // 0.6 second smooth delay to simulate AI thinking
+}
 
 // --- DYNAMIC, LAG-FREE ENDLESS CANVAS ENGINE ---
 function openBlankCanvas() {

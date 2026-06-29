@@ -31,6 +31,18 @@
             user-select: none; 
         }
 
+        #board-container {
+    position: relative; 
+    background: white; 
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    transform-origin: top left; 
+    transition: transform 0.1s ease-out;
+    margin: 0 auto;
+    /* Speed boost for iPad graphics engine rendering */
+    will-change: transform; 
+}
+
         /* --- MAC TOP MENUBAR --- */
         .mac-menubar {
             height: 30px; background: rgba(255,255,255,0.6); backdrop-filter: blur(20px);
@@ -396,45 +408,57 @@
             }, 1000);
         }
 
-        // --- BLANK ENDLESS CANVAS ENGINE ---
-        function openBlankCanvas() {
-            activeBook = { title: "Blank Canvas", isBlank: true };
-            viewZoom = 1.0;
-            document.getElementById('board-wrapper').style.transform = `scale(1)`;
-            document.getElementById('top-title').textContent = "Endless Canvas";
-            
-            document.getElementById('dashboard-view').style.display = 'none';
-            document.getElementById('whiteboard-view').style.display = 'flex';
+// --- DYNAMIC, LAG-FREE ENDLESS CANVAS ENGINE ---
+function openBlankCanvas() {
+    activeBook = { title: "Blank Canvas", isBlank: true };
+    viewZoom = 1.0;
+    document.getElementById('board-wrapper').style.transform = `scale(1)`;
+    document.getElementById('top-title').textContent = "Endless Canvas";
+    
+    document.getElementById('dashboard-view').style.display = 'none';
+    document.getElementById('whiteboard-view').style.display = 'flex';
 
-            const wrapper = document.getElementById('board-wrapper');
-            wrapper.innerHTML = '';
-            fabricCanvases = [];
+    const wrapper = document.getElementById('board-wrapper');
+    wrapper.innerHTML = '';
+    fabricCanvases = [];
 
-            // Massive 10k x 10k Canvas
-            const pageDiv = document.createElement('div');
-            pageDiv.className = 'pdf-page-container';
-            pageDiv.style.width = '10000px'; 
-            pageDiv.style.height = '10000px'; 
+    // Start with a standard sharp size instead of a massive 10k container to stop lag
+    const pageDiv = document.createElement('div');
+    pageDiv.className = 'pdf-page-container';
+    pageDiv.style.width = '1200px'; 
+    pageDiv.style.height = '1600px'; 
 
-            const drawCanv = document.createElement('canvas');
-            pageDiv.appendChild(drawCanv);
-            wrapper.appendChild(pageDiv);
+    const drawCanv = document.createElement('canvas');
+    pageDiv.appendChild(drawCanv);
+    wrapper.appendChild(pageDiv);
 
-            const fCanvas = new fabric.Canvas(drawCanv, { width: 10000, height: 10000, isDrawingMode: true, allowTouchScrolling: false });
-            
-            // Smoothes the brush strokes on endless canvas
-            fCanvas.freeDrawingBrush.decimate = 2; 
+    // Initialize the drawing layer
+    const fCanvas = new fabric.Canvas(drawCanv, { 
+        width: 1200, 
+        height: 1600, 
+        isDrawingMode: true, 
+        allowTouchScrolling: false 
+    });
+    
+    // Smooth drawing profile
+    fCanvas.freeDrawingBrush.decimate = 3; 
 
-            fabricCanvases.push({ canvas: fCanvas, key: `BlankCanvas_Master` });
-            setupFabricEvents(fCanvas, `BlankCanvas_Master`);
+    fabricCanvases.push({ canvas: fCanvas, key: `BlankCanvas_Master` });
+    setupFabricEvents(fCanvas, `BlankCanvas_Master`);
 
-            // Center view
-            const viewport = document.getElementById('viewport');
-            viewport.scrollLeft = (10000 - window.innerWidth) / 2;
-            viewport.scrollTop = (10000 - window.innerHeight) / 2;
-
-            setTool('pen');
+    // DYNAMIC GROWTH: If the teacher draws near the bottom, grow the board automatically!
+    fCanvas.on('path:created', function(e) {
+        const path = e.path;
+        if (path.top + path.height > fCanvas.height - 200) {
+            const newHeight = fCanvas.height + 1000;
+            fCanvas.setHeight(newHeight);
+            pageDiv.style.style.height = `${newHeight}px`;
+            fCanvas.calcOffset();
         }
+    });
+
+    setTool('pen');
+}
 
         // --- CONTINUOUS SCROLL PDF ENGINE ---
         function openBook(book) {
@@ -501,7 +525,21 @@
                     res.pdfCanv.height = viewportRect.height;
 
                     res.page.render({ canvasContext: res.pdfCanv.getContext('2d'), viewport: viewportRect }).promise.then(() => {
-                        const fCanvas = new fabric.Canvas(res.drawCanv, { width: viewportRect.width, height: viewportRect.height, isDrawingMode: true, allowTouchScrolling: false });
+                       // --- ENSURE ALL YOUR 'new fabric.Canvas' ARE UPDATED WITH THESE EXACT PROPERTIES ---
+const fCanvas = new fabric.Canvas(res.drawCanv, { 
+    width: viewportRect.width, 
+    height: viewportRect.height, 
+    isDrawingMode: true, 
+    allowTouchScrolling: false, // Disables touch scrolling so fingers draw ink
+    enableRetinaScaling: false  // Stops heavy graphics processing to remove drawing lag
+});
+
+// Force Fabric to accept native touch-pointer inputs for drawing on tablets
+if (window.PointerEvent) {
+    fCanvas.on('mouse:down', function(e) { fCanvas._onMouseDown(e.e); });
+    fCanvas.on('mouse:move', function(e) { fCanvas._onMouseMove(e.e); });
+    fCanvas.on('mouse:up', function(e) { fCanvas._onMouseUp(e.e); });
+}
                         
                         // Makes textbook ink extremely smooth
                         fCanvas.freeDrawingBrush.decimate = 2;

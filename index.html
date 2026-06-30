@@ -27,21 +27,20 @@
             background-color: var(--mac-bg);
             color: var(--mac-dark);
             -webkit-font-smoothing: antialiased;
-            overflow: hidden; /* Global overflow hidden, internal components handle their own scrolling */
+            overflow: hidden;
             user-select: none; 
         }
 
         #board-container {
-    position: relative; 
-    background: white; 
-    border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    transform-origin: top left; 
-    transition: transform 0.1s ease-out;
-    margin: 0 auto;
-    /* Speed boost for iPad graphics engine rendering */
-    will-change: transform; 
-}
+            position: relative; 
+            background: white; 
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transform-origin: top left; 
+            transition: transform 0.1s ease-out;
+            margin: 0 auto;
+            will-change: transform; 
+        }
 
         /* --- MAC TOP MENUBAR --- */
         .mac-menubar {
@@ -76,7 +75,6 @@
         .nav-btn:hover { background: rgba(0, 0, 0, 0.05); }
         .nav-btn.active { background: var(--mac-blue); color: white; }
 
-        /* FIXED DASHBOARD SCROLLING */
         .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; height: 100%; box-sizing: border-box; }
         
         .header h1 { font-size: 28px; font-weight: 700; margin: 0; }
@@ -134,17 +132,16 @@
             display: flex; gap: 8px; background: rgba(255, 255, 255, 0.5); padding: 8px 12px;
             border-radius: 24px; backdrop-filter: blur(25px) saturate(180%); border: 1px solid rgba(255,255,255,0.6);
             box-shadow: 0 10px 30px rgba(0,0,0,0.15); align-items: center;
-            overflow-x: auto; /* Scrollable on phones */
+            overflow-x: auto; 
             max-width: 95vw;
         }
 
-        /* Hide scrollbar for dock */
         .mac-dock::-webkit-scrollbar { display: none; }
         
         .dock-btn {
             background: transparent; border: none; color: var(--mac-dark); font-size: 18px;
             width: 40px; height: 40px; border-radius: 12px; cursor: pointer;
-            display: flex; justify-content: center; align-items: center; transition: 0.2s;
+            display: flex; justify-content: center; align-items: center; transition: 0.2s; position: relative;
         }
         .dock-btn:hover { background: rgba(255,255,255,0.5); }
         .dock-btn.active { background: rgba(0, 0, 0, 0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
@@ -157,9 +154,27 @@
         }
         .color-swatch.active { border-color: rgba(0,0,0,0.3); transform: scale(1.15); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
 
-        .thickness-select {
-            background: rgba(0,0,0,0.05); border: none; color: var(--mac-dark);
-            border-radius: 10px; padding: 5px; font-size: 12px; font-weight: bold; outline: none; cursor: pointer;
+        /* --- POPUP SLIDERS (ZOOM & PEN SIZE) --- */
+        .popup-panel {
+            display: none; position: absolute; bottom: 70px; background: rgba(250, 250, 250, 0.95);
+            backdrop-filter: blur(20px); border-radius: 12px; padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.05); z-index: 105;
+            flex-direction: column; gap: 10px; align-items: center; width: 160px;
+        }
+        .popup-panel.show { display: flex; }
+        .popup-panel label { font-size: 12px; font-weight: 600; color: var(--mac-dark); }
+        
+        /* Mac-style Range Slider */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%;
+            background: white; border: 1px solid rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15); margin-top: -8px;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; background: rgba(0,0,0,0.1); border-radius: 2px;
         }
 
         /* --- MOBILE RESPONSIVE UPGRADES --- */
@@ -246,11 +261,23 @@
 
         <!-- MAC OS DOCK -->
         <div class="mac-dock-wrapper">
+            
+            <!-- POPUP SLIDERS -->
+            <div class="popup-panel" id="zoom-slider-popup">
+                <label>Zoom Level</label>
+                <input type="range" id="zoom-slider" min="0.4" max="3.0" step="0.1" value="1.3" oninput="handleZoomSlider(this.value)">
+            </div>
+            <div class="popup-panel" id="thickness-slider-popup">
+                <label>Pen Thickness</label>
+                <input type="range" id="weight-slider" min="1" max="30" step="1" value="4" oninput="updateProfile()">
+            </div>
+
             <div class="mac-dock">
                 <!-- System Actions -->
                 <button class="dock-btn" onclick="closeBook()" title="Exit to Dashboard">🏠</button>
-                <button class="dock-btn" onclick="zoomBoard(0.2)" title="Zoom In">➕</button>
-                <button class="dock-btn" onclick="zoomBoard(-0.2)" title="Zoom Out">➖</button>
+                
+                <!-- INSTRUCTION: New Pop-up Slider triggers -->
+                <button class="dock-btn" onclick="togglePopup('zoom-slider-popup')" title="Adjust Zoom">🔍</button>
                 <button class="dock-btn" onclick="exportToPDF()" title="Print/Export PDF">🖨️</button>
                 <button class="dock-btn" onclick="readAloud()" title="AI Read Aloud">🗣️</button>
                 
@@ -262,30 +289,23 @@
                 <button class="dock-btn" id="tool-highlighter" onclick="setTool('highlighter')" title="Highlighter">🖍️</button>
                 <button class="dock-btn" id="tool-text" onclick="setTool('text')" title="Type Text">🔤</button>
                 
+                <!-- INSTRUCTION: Pen size slider trigger replaces the old dropdown -->
+                <button class="dock-btn" onclick="togglePopup('thickness-slider-popup')" title="Adjust Pen Size">📏</button>
+                
                 <div class="dock-divider"></div>
 
                 <!-- 5 Apple Colors -->
-                <!-- INSTRUCTION: You can change these hex codes to match your school colors if needed -->
-                <div class="color-swatch active" style="background:#FF3B30" onclick="setColor('#FF3B30', this)"></div> <!-- Red -->
-                <div class="color-swatch" style="background:#FFCC00" onclick="setColor('#FFCC00', this)"></div> <!-- Yellow -->
-                <div class="color-swatch" style="background:#34C759" onclick="setColor('#34C759', this)"></div> <!-- Green -->
-                <div class="color-swatch" style="background:#007AFF" onclick="setColor('#007AFF', this)"></div> <!-- Blue -->
-                <div class="color-swatch" style="background:#1C1C1E" onclick="setColor('#1C1C1E', this)"></div> <!-- Dark -->
+                <div class="color-swatch active" style="background:#FF3B30" onclick="setColor('#FF3B30', this)"></div>
+                <div class="color-swatch" style="background:#FFCC00" onclick="setColor('#FFCC00', this)"></div>
+                <div class="color-swatch" style="background:#34C759" onclick="setColor('#34C759', this)"></div>
+                <div class="color-swatch" style="background:#007AFF" onclick="setColor('#007AFF', this)"></div>
+                <div class="color-swatch" style="background:#1C1C1E" onclick="setColor('#1C1C1E', this)"></div>
                 
-                <select id="brush-weight" class="thickness-select" onchange="updateProfile()">
-                    <option value="2">Fine</option>
-                    <option value="4" selected>Med</option>
-                    <option value="12">Thick</option>
-                </select>
-
                 <div class="dock-divider"></div>
 
-                <!-- Existing Object Eraser -->
-<button class="dock-btn" id="tool-eraser" onclick="setTool('eraser')" title="Object Eraser">🧽</button>
-
-<!-- UPDATED: Clear Current Page vs Clear Everything -->
-<button class="dock-btn" onclick="clearCurrentPage()" title="Clear This Page Only">📄🧹</button>
-<button class="dock-btn" onclick="clearAllPages()" style="color: #ff3b30;" title="Clear Entire Document">🗑️💥</button>
+                <button class="dock-btn" id="tool-eraser" onclick="setTool('eraser')" title="Object Eraser">🧽</button>
+                <button class="dock-btn" onclick="clearCurrentPage()" title="Clear This Page Only">📄🧹</button>
+                <button class="dock-btn" onclick="clearAllPages()" style="color: #ff3b30;" title="Clear Entire Document">🗑️💥</button>
                 <button class="dock-btn" id="tool-rect" onclick="setTool('rect')">⬜</button>
                 <button class="dock-btn" id="tool-circle" onclick="setTool('circle')">⭕</button>
                 <button class="dock-btn" id="tool-triangle" onclick="setTool('triangle')">🔺</button>
@@ -302,35 +322,50 @@
             document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }, 1000);
 
-        // --- FULL DATABASE WITH INSTRUCTIONS ---
-        // ⚠️ INSTRUCTION: To add PDFs to folders, define the exact path in the 'file' parameter.
+        // --- FULL DATABASE STRUCTURE ---
+        // INSTRUCTION: The files are now precisely organized into nested folders exactly as captured in your repository images.
         const database = {
             "English": [
-                { title: "Chapter 1", file: "Subjects/English/1.pdf" }
+                { title: "1 - 1", file: "Subjects/English/1 - 1.pdf" }, { title: "1 - 2", file: "Subjects/English/1 - 2.pdf" }, { title: "1 - 3", file: "Subjects/English/1 - 3.pdf" }, { title: "1 - Transcript", file: "Subjects/English/1 - Transcript.pdf" },
+                { title: "2 - 1", file: "Subjects/English/2 - 1.pdf" }, { title: "2 - 2", file: "Subjects/English/2 - 2.pdf" }, { title: "2 - 3", file: "Subjects/English/2 - 3.pdf" }, { title: "2 - Transcript", file: "Subjects/English/2 - Transcript.pdf" },
+                { title: "3 - 1", file: "Subjects/English/3 - 1.pdf" }, { title: "3 - 2", file: "Subjects/English/3 - 2.pdf" }, { title: "3 - 3", file: "Subjects/English/3 - 3.pdf" }, { title: "3 - Transcript", file: "Subjects/English/3 - Transcript.pdf" },
+                { title: "4 - 1", file: "Subjects/English/4 - 1.pdf" }, { title: "4 - 2", file: "Subjects/English/4 - 2.pdf" }, { title: "4 - 3", file: "Subjects/English/4 - 3.pdf" }, { title: "4 - Transcript", file: "Subjects/English/4 - Transcript.pdf" },
+                { title: "5 - 1", file: "Subjects/English/5 - 1.pdf" }, { title: "5 - 2", file: "Subjects/English/5 - 2.pdf" }, { title: "5 - 3", file: "Subjects/English/5 - 3.pdf" }, { title: "5 - Transcript", file: "Subjects/English/5 - Transcript.pdf" },
+                { title: "Intro", file: "Subjects/English/Intro.pdf" }
             ],
             "Hindi": [
-                { title: "Chapter 1", file: "Subjects/Hindi/1.pdf" }
+                { title: "Chapter 1", file: "Subjects/Hindi/1.pdf" }, { title: "Chapter 2", file: "Subjects/Hindi/2.pdf" }, { title: "Chapter 3", file: "Subjects/Hindi/3.pdf" }, { title: "Chapter 4", file: "Subjects/Hindi/4.pdf" }, { title: "Chapter 5", file: "Subjects/Hindi/5.pdf" },
+                { title: "Chapter 6", file: "Subjects/Hindi/6.pdf" }, { title: "Chapter 7", file: "Subjects/Hindi/7.pdf" }, { title: "Chapter 8", file: "Subjects/Hindi/8.pdf" }, { title: "Chapter 9", file: "Subjects/Hindi/9.pdf" }, { title: "Chapter 10", file: "Subjects/Hindi/10.pdf" },
+                { title: "Intro", file: "Subjects/Hindi/Intro.pdf" }
             ],
             "Malayalam": [
-                { title: "Chapter 1", file: "Subjects/Malayalam/1.pdf" }
+                { title: "AT", file: "Subjects/Malayalam/AT.pdf" }, { title: "Part 1", file: "Subjects/Malayalam/Part 1.pdf" }, { title: "Part 2", file: "Subjects/Malayalam/Part 2.pdf" }
             ],
             "GS": [
-                { title: "General Science Ch 1", file: "Subjects/GS/1.pdf" }
+                { title: "Chapter 1", file: "Subjects/GS/1.pdf" }, { title: "Chapter 2", file: "Subjects/GS/2.pdf" }, { title: "Chapter 3", file: "Subjects/GS/3.pdf" }, { title: "Chapter 4", file: "Subjects/GS/4.pdf" }, { title: "Chapter 5", file: "Subjects/GS/5.pdf" },
+                { title: "Chapter 6", file: "Subjects/GS/6.pdf" }, { title: "Chapter 7", file: "Subjects/GS/7.pdf" }, { title: "Chapter 8", file: "Subjects/GS/8.pdf" }, { title: "Chapter 9", file: "Subjects/GS/9.pdf" }, { title: "Chapter 10", file: "Subjects/GS/10.pdf" }, { title: "Chapter 11", file: "Subjects/GS/11.pdf" }, { title: "Chapter 12", file: "Subjects/GS/12.pdf" },
+                { title: "Intro", file: "Subjects/GS/Intro.pdf" }
             ],
-            // INSTRUCTION: Here is how you add sub-folders for SS and Maths
             "MathsPart1": [
-                { title: "Algebra Basics", file: "Subjects/Maths/Part1/Algebra/1.pdf" },
-                { title: "Geometry", file: "Subjects/Maths/Part1/Geometry/2.pdf" }
+                { title: "Chapter 1", file: "Subjects/Maths/Part 1/1.pdf" }, { title: "Chapter 2", file: "Subjects/Maths/Part 1/2.pdf" }, { title: "Chapter 3", file: "Subjects/Maths/Part 1/3.pdf" }, { title: "Chapter 4", file: "Subjects/Maths/Part 1/4.pdf" },
+                { title: "Chapter 5", file: "Subjects/Maths/Part 1/5.pdf" }, { title: "Chapter 6", file: "Subjects/Maths/Part 1/6.pdf" }, { title: "Chapter 7", file: "Subjects/Maths/Part 1/7.pdf" }, { title: "Chapter 8", file: "Subjects/Maths/Part 1/8.pdf" },
+                { title: "Intro", file: "Subjects/Maths/Part 1/Intro.pdf" }
             ],
             "MathsPart2": [
-                { title: "Calculus", file: "Subjects/Maths/Part2/Calculus/1.pdf" }
+                { title: "Chapter 1", file: "Subjects/Maths/Part 2/1.pdf" }, { title: "Chapter 2", file: "Subjects/Maths/Part 2/2.pdf" }, { title: "Chapter 3", file: "Subjects/Maths/Part 2/3.pdf" }, { title: "Chapter 4", file: "Subjects/Maths/Part 2/4.pdf" },
+                { title: "Chapter 5", file: "Subjects/Maths/Part 2/5.pdf" }, { title: "Chapter 6", file: "Subjects/Maths/Part 2/6.pdf" }, { title: "Chapter 7", file: "Subjects/Maths/Part 2/7.pdf" },
+                { title: "Intro", file: "Subjects/Maths/Part 2/Intro.pdf" }
             ],
             "SSPart1": [
-                { title: "History: Middle Ages", file: "Subjects/SS/Part1/History/1.pdf" },
-                { title: "Geography: Maps", file: "Subjects/SS/Part1/Geography/2.pdf" }
+                { title: "Chapter 1", file: "Subjects/SS/Part 1/1.pdf" }, { title: "Chapter 2", file: "Subjects/SS/Part 1/2.pdf" }, { title: "Chapter 3", file: "Subjects/SS/Part 1/3.pdf" }, { title: "Chapter 4", file: "Subjects/SS/Part 1/4.pdf" },
+                { title: "Chapter 5", file: "Subjects/SS/Part 1/5.pdf" }, { title: "Chapter 6", file: "Subjects/SS/Part 1/6.pdf" }, { title: "Chapter 7", file: "Subjects/SS/Part 1/7.pdf" }, { title: "Chapter 8", file: "Subjects/SS/Part 1/8.pdf" },
+                { title: "Chapter 9", file: "Subjects/SS/Part 1/9.pdf" }, { title: "Chapter 10", file: "Subjects/SS/Part 1/10.pdf" }, { title: "Chapter 11", file: "Subjects/SS/Part 1/11.pdf" }, { title: "Chapter 12", file: "Subjects/SS/Part 1/12.pdf" },
+                { title: "Ending", file: "Subjects/SS/Part 1/Ending.pdf" }, { title: "Intro", file: "Subjects/SS/Part 1/Intro.pdf" }
             ],
             "SSPart2": [
-                { title: "Civics", file: "Subjects/SS/Part2/Civics/1.pdf" }
+                { title: "Chapter 1", file: "Subjects/SS/Part 2/1.pdf" }, { title: "Chapter 2", file: "Subjects/SS/Part 2/2.pdf" }, { title: "Chapter 3", file: "Subjects/SS/Part 2/3.pdf" }, { title: "Chapter 4", file: "Subjects/SS/Part 2/4.pdf" },
+                { title: "Chapter 5", file: "Subjects/SS/Part 2/5.pdf" }, { title: "Chapter 6", file: "Subjects/SS/Part 2/6.pdf" }, { title: "Chapter 7", file: "Subjects/SS/Part 2/7.pdf" }, { title: "Chapter 8", file: "Subjects/SS/Part 2/8.pdf" },
+                { title: "Ending", file: "Subjects/SS/Part 2/Ending.pdf" }, { title: "Intro", file: "Subjects/SS/Part 2/Intro.pdf" }
             ]
         };
 
@@ -349,7 +384,7 @@
         
         let fabricCanvases = [];
         let currentTool = 'pen';
-        let activeColor = '#FF3B30'; // Default Apple Red
+        let activeColor = '#FF3B30'; 
         let pageDrawings = JSON.parse(localStorage.getItem('smartboard_mac_notes')) || {};
 
         // --- DASHBOARD ROUTING ---
@@ -378,7 +413,19 @@
             });
         }
 
-        // --- MES AI CHAT (SELF-TRAINED API PLACEHOLDER) ---
+        // --- UI POPUP TOGGLE ROUTING ---
+        function togglePopup(id) {
+            ['zoom-slider-popup', 'thickness-slider-popup'].forEach(pid => {
+                if (pid !== id) {
+                    const el = document.getElementById(pid);
+                    if (el) el.classList.remove('show');
+                }
+            });
+            const target = document.getElementById(id);
+            if (target) target.classList.toggle('show');
+        }
+
+        // --- MES AI CHAT (LOCAL SIMULATOR) ---
         function openAIView() {
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('btn-AI').classList.add('active');
@@ -387,140 +434,116 @@
             document.getElementById('ai-view-container').style.display = 'flex';
         }
 
-// --- LOCAL "SELF-TRAINED" AI ENGINE (NO BACKEND REQUIRED) ---
-function sendAIMessage() {
-    const input = document.getElementById('ai-input');
-    const chatBox = document.getElementById('chat-box');
-    const query = input.value.trim().toLowerCase();
-    
-    if (query === "") return;
+        function sendAIMessage() {
+            const input = document.getElementById('ai-input');
+            const chatBox = document.getElementById('chat-box');
+            const query = input.value.trim().toLowerCase();
+            
+            if (query === "") return;
 
-    // 1. Display Teacher's Message on Screen
-    const userMsg = document.createElement('div');
-    userMsg.className = 'msg user';
-    userMsg.textContent = input.value;
-    chatBox.appendChild(userMsg);
+            const userMsg = document.createElement('div');
+            userMsg.className = 'msg user';
+            userMsg.textContent = input.value;
+            chatBox.appendChild(userMsg);
 
-    input.value = '';
-    chatBox.scrollTop = chatBox.scrollHeight;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
 
-    // 2. "TRAIN" YOUR AI HERE WITH SCRIPTED RESPONSES
-    // You can add as many educational keywords and answers as you want below!
-    const localKnowledgeBase = {
-        "hello": "Hello! I am your local MES SmartOS AI assistant. Ask me for lesson plans, quizzes, or subject guidelines!",
-        "hi": "Hello! How can I assist you with your textbook syllabus today?",
-        
-        // English Training Data
-        "english lesson plan": "📚 **English Chapter 2 Lesson Plan Outline:**\n• **Introduction (10 mins):** Read the introductory story 'Animals, Birds, and Dr. Dolittle'.\n• **Core Activity (20 mins):** Practice pronunciation of core vocabulary and answer text comprehension questions.\n• **Wrap-Up (10 mins):** Students write 3 sentences about their favorite domestic animal.",
-        "english quiz": "📝 **Quick English Pop-Quiz Generator:**\n1. Who is the main character introducing the unit?\n2. Write the antonym of 'Humour'.\n3. True or False: Animals communicate their emotions through distinct body language.",
-        
-        // Malayalam Training Data
-        "malayalam": "🌴 **Malayalam Language Study Framework:**\nFocus heavily on core language structural rules, script definitions, prose dictation, and traditional Kerala cultural history integration checkpoints.",
-        
-        // Maths Training Data
-        "maths quiz": "📐 **Maths Quick Diagnostic Check:**\n1. Solve for $x$: $2x + 5 = 15$.\n2. What is the sum of the angles in a perfect Euclidean triangle?\n3. Calculate the perimeter of a rectangle with a width of 5cm and height of 10cm.",
-        "geometry": "⬜ **Geometry Key Blueprint Formulae:**\n• Area of Rectangle = $\\text{width} \\times \\text{height}$\n• Area of Circle = $\\pi r^2$\n• Angles of a Triangle always sum up to exactly $180^\\circ$.",
-        
-        // General Science (GS) Training Data
-        "science lesson": "🔬 **General Science Chapter 1 Blueprint:**\nFocus elements: Core molecular structures, basic physical chemical properties, and classroom laboratory safety protocols when conducting virtual element mixing experiments.",
-        
-        // General Fallback Instructions
-        "help": "You can ask me things like:\n• 'English Lesson Plan'\n• 'English Quiz'\n• 'Maths Quiz'\n• 'Geometry'\n• 'Science Lesson'"
-    };
+            const localKnowledgeBase = {
+                "hello": "Hello! I am your local MES SmartOS AI assistant. Ask me for lesson plans, quizzes, or subject guidelines!",
+                "hi": "Hello! How can I assist you with your textbook syllabus today?",
+                "english lesson plan": "📚 **English Chapter 2 Lesson Plan Outline:**\n• **Introduction (10 mins):** Read the introductory story 'Animals, Birds, and Dr. Dolittle'.\n• **Core Activity (20 mins):** Practice pronunciation of core vocabulary and answer text comprehension questions.\n• **Wrap-Up (10 mins):** Students write 3 sentences about their favorite domestic animal.",
+                "english quiz": "📝 **Quick English Pop-Quiz Generator:**\n1. Who is the main character introducing the unit?\n2. Write the antonym of 'Humour'.\n3. True or False: Animals communicate their emotions through distinct body language.",
+                "malayalam": "🌴 **Malayalam Language Study Framework:**\nFocus heavily on core language structural rules, script definitions, prose dictation, and traditional Kerala cultural history integration checkpoints.",
+                "maths quiz": "📐 **Maths Quick Diagnostic Check:**\n1. Solve for $x$: $2x + 5 = 15$.\n2. What is the sum of the angles in a perfect Euclidean triangle?\n3. Calculate the perimeter of a rectangle with a width of 5cm and height of 10cm.",
+                "geometry": "⬜ **Geometry Key Blueprint Formulae:**\n• Area of Rectangle = $\\text{width} \\times \\text{height}$\n• Area of Circle = $\\pi r^2$\n• Angles of a Triangle always sum up to exactly $180^\\circ$.",
+                "science lesson": "🔬 **General Science Chapter 1 Blueprint:**\nFocus elements: Core molecular structures, basic physical chemical properties, and classroom laboratory safety protocols when conducting virtual element mixing experiments.",
+                "help": "You can ask me things like:\n• 'English Lesson Plan'\n• 'English Quiz'\n• 'Maths Quiz'\n• 'Geometry'\n• 'Science Lesson'"
+            };
 
-    // 3. AI Processing Animation
-    const loadingMsg = document.createElement('div');
-    loadingMsg.className = 'msg ai';
-    loadingMsg.textContent = "🤖 Processing syllabus database...";
-    chatBox.appendChild(loadingMsg);
-    chatBox.scrollTop = chatBox.scrollHeight;
+            const loadingMsg = document.createElement('div');
+            loadingMsg.className = 'msg ai';
+            loadingMsg.textContent = "🤖 Processing syllabus database...";
+            chatBox.appendChild(loadingMsg);
+            chatBox.scrollTop = chatBox.scrollHeight;
 
-    // 4. Match the query to your "trained" local data
-    setTimeout(() => {
-        // Remove processing text
-        chatBox.removeChild(loadingMsg);
+            setTimeout(() => {
+                chatBox.removeChild(loadingMsg);
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'msg ai';
+                
+                let matchedResponse = "";
+                for (let keyword in localKnowledgeBase) {
+                    if (query.includes(keyword)) {
+                        matchedResponse = localKnowledgeBase[keyword];
+                        break;
+                    }
+                }
 
-        const aiMsg = document.createElement('div');
-        aiMsg.className = 'msg ai';
-        
-        // Find if any trained keyword is hidden inside what the teacher typed
-        let matchedResponse = "";
-        for (let keyword in localKnowledgeBase) {
-            if (query.includes(keyword)) {
-                matchedResponse = localKnowledgeBase[keyword];
-                break;
-            }
+                if (matchedResponse !== "") {
+                    aiMsg.innerHTML = matchedResponse.replace(/\n/g, "<br>");
+                } else {
+                    aiMsg.innerHTML = "🧠 **MES Custom AI Search Note:**<br>I couldn't find an exact match for that specific topic query in my local cache script data.<br><br>Type **'help'** to see a list of topics you can ask me about!";
+                }
+
+                chatBox.appendChild(aiMsg);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 600); 
         }
 
-        // If matched, show response, otherwise show standard intelligent fallback instructions
-        if (matchedResponse !== "") {
-            aiMsg.innerHTML = matchedResponse.replace(/\n/g, "<br>");
-        } else {
-            aiMsg.innerHTML = "🧠 **MES Custom AI Search Note:**<br>I couldn't find an exact match for that specific topic query in my local cache script data.<br><br>Type **'help'** to see a list of topics you can ask me about!";
+        // --- DYNAMIC, LAG-FREE ENDLESS CANVAS ENGINE ---
+        function openBlankCanvas() {
+            activeBook = { title: "Blank Canvas", isBlank: true };
+            viewZoom = 1.0;
+            document.getElementById('zoom-slider').value = viewZoom;
+            
+            document.getElementById('board-wrapper').style.transform = `scale(1)`;
+            document.getElementById('top-title').textContent = "Endless Canvas";
+            
+            document.getElementById('dashboard-view').style.display = 'none';
+            document.getElementById('whiteboard-view').style.display = 'flex';
+
+            const wrapper = document.getElementById('board-wrapper');
+            wrapper.innerHTML = '';
+            fabricCanvases = [];
+
+            const pageDiv = document.createElement('div');
+            pageDiv.className = 'pdf-page-container';
+            pageDiv.style.width = '1200px'; 
+            pageDiv.style.height = '1600px'; 
+
+            const drawCanv = document.createElement('canvas');
+            pageDiv.appendChild(drawCanv);
+            wrapper.appendChild(pageDiv);
+
+            const fCanvas = new fabric.Canvas(drawCanv, { 
+                width: 1200, height: 1600, isDrawingMode: true, allowTouchScrolling: false 
+            });
+            fCanvas.freeDrawingBrush.decimate = 3; 
+
+            fabricCanvases.push({ canvas: fCanvas, key: `BlankCanvas_Master` });
+            setupFabricEvents(fCanvas, `BlankCanvas_Master`);
+
+            fCanvas.on('path:created', function(e) {
+                const path = e.path;
+                if (path.top + path.height > fCanvas.height - 200) {
+                    const newHeight = fCanvas.height + 1000;
+                    fCanvas.setHeight(newHeight);
+                    pageDiv.style.height = `${newHeight}px`;
+                    fCanvas.calcOffset();
+                }
+            });
+
+            setTool('pen');
         }
-
-        chatBox.appendChild(aiMsg);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }, 600); // 0.6 second smooth delay to simulate AI thinking
-}
-
-// --- DYNAMIC, LAG-FREE ENDLESS CANVAS ENGINE ---
-function openBlankCanvas() {
-    activeBook = { title: "Blank Canvas", isBlank: true };
-    viewZoom = 1.0;
-    document.getElementById('board-wrapper').style.transform = `scale(1)`;
-    document.getElementById('top-title').textContent = "Endless Canvas";
-    
-    document.getElementById('dashboard-view').style.display = 'none';
-    document.getElementById('whiteboard-view').style.display = 'flex';
-
-    const wrapper = document.getElementById('board-wrapper');
-    wrapper.innerHTML = '';
-    fabricCanvases = [];
-
-    // Start with a standard sharp size instead of a massive 10k container to stop lag
-    const pageDiv = document.createElement('div');
-    pageDiv.className = 'pdf-page-container';
-    pageDiv.style.width = '1200px'; 
-    pageDiv.style.height = '1600px'; 
-
-    const drawCanv = document.createElement('canvas');
-    pageDiv.appendChild(drawCanv);
-    wrapper.appendChild(pageDiv);
-
-    // Initialize the drawing layer
-    const fCanvas = new fabric.Canvas(drawCanv, { 
-        width: 1200, 
-        height: 1600, 
-        isDrawingMode: true, 
-        allowTouchScrolling: false 
-    });
-    
-    // Smooth drawing profile
-    fCanvas.freeDrawingBrush.decimate = 3; 
-
-    fabricCanvases.push({ canvas: fCanvas, key: `BlankCanvas_Master` });
-    setupFabricEvents(fCanvas, `BlankCanvas_Master`);
-
-    // DYNAMIC GROWTH: If the teacher draws near the bottom, grow the board automatically!
-    fCanvas.on('path:created', function(e) {
-        const path = e.path;
-        if (path.top + path.height > fCanvas.height - 200) {
-            const newHeight = fCanvas.height + 1000;
-            fCanvas.setHeight(newHeight);
-            pageDiv.style.style.height = `${newHeight}px`;
-            fCanvas.calcOffset();
-        }
-    });
-
-    setTool('pen');
-}
 
         // --- CONTINUOUS SCROLL PDF ENGINE ---
         function openBook(book) {
             activeBook = book;
             activeBook.isBlank = false;
             viewZoom = 1.0;
+            document.getElementById('zoom-slider').value = viewZoom;
+            
             document.getElementById('board-wrapper').style.transform = `scale(1)`;
             document.getElementById('top-title').textContent = book.title;
             
@@ -581,25 +604,17 @@ function openBlankCanvas() {
                     res.pdfCanv.height = viewportRect.height;
 
                     res.page.render({ canvasContext: res.pdfCanv.getContext('2d'), viewport: viewportRect }).promise.then(() => {
-                       // --- ENSURE ALL YOUR 'new fabric.Canvas' ARE UPDATED WITH THESE EXACT PROPERTIES ---
-const fCanvas = new fabric.Canvas(res.drawCanv, { 
-    width: viewportRect.width, 
-    height: viewportRect.height, 
-    isDrawingMode: true, 
-    allowTouchScrolling: false, // Disables touch scrolling so fingers draw ink
-    enableRetinaScaling: false  // Stops heavy graphics processing to remove drawing lag
-});
+                        const fCanvas = new fabric.Canvas(res.drawCanv, { 
+                            width: viewportRect.width, height: viewportRect.height, isDrawingMode: true, allowTouchScrolling: false, enableRetinaScaling: false 
+                        });
 
-// Force Fabric to accept native touch-pointer inputs for drawing on tablets
-if (window.PointerEvent) {
-    fCanvas.on('mouse:down', function(e) { fCanvas._onMouseDown(e.e); });
-    fCanvas.on('mouse:move', function(e) { fCanvas._onMouseMove(e.e); });
-    fCanvas.on('mouse:up', function(e) { fCanvas._onMouseUp(e.e); });
-}
+                        if (window.PointerEvent) {
+                            fCanvas.on('mouse:down', function(e) { fCanvas._onMouseDown(e.e); });
+                            fCanvas.on('mouse:move', function(e) { fCanvas._onMouseMove(e.e); });
+                            fCanvas.on('mouse:up', function(e) { fCanvas._onMouseUp(e.e); });
+                        }
                         
-                        // Makes textbook ink extremely smooth
                         fCanvas.freeDrawingBrush.decimate = 2;
-
                         const storageKey = `${activeBook.title}_page_${res.num}`;
                         fabricCanvases.push({ canvas: fCanvas, key: storageKey });
                         setupFabricEvents(fCanvas, storageKey);
@@ -646,7 +661,7 @@ if (window.PointerEvent) {
                     isDrawingShape = true;
                     const pointer = fCanvas.getPointer(options.e);
                     shapeStartX = pointer.x; shapeStartY = pointer.y;
-                    const weight = parseInt(document.getElementById('brush-weight').value);
+                    const weight = parseInt(document.getElementById('weight-slider').value);
 
                     if (currentTool === 'rect') tempObj = new fabric.Rect({ left: shapeStartX, top: shapeStartY, width: 0, height: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
                     else if (currentTool === 'circle') tempObj = new fabric.Circle({ left: shapeStartX, top: shapeStartY, radius: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
@@ -731,7 +746,7 @@ if (window.PointerEvent) {
         }
 
         function updateProfile() {
-            const weight = parseInt(document.getElementById('brush-weight').value);
+            const weight = parseInt(document.getElementById('weight-slider').value);
 
             fabricCanvases.forEach(fc => {
                 if (currentTool === 'pen') {
@@ -745,6 +760,13 @@ if (window.PointerEvent) {
                     fc.canvas.freeDrawingBrush.width = weight * 4;
                 }
             });
+        }
+
+        // --- POPUP SLIDER HANDLERS ---
+        function handleZoomSlider(val) {
+            viewZoom = parseFloat(val);
+            document.getElementById('board-wrapper').style.transform = `scale(${viewZoom})`;
+            setTimeout(() => { fabricCanvases.forEach(fc => fc.canvas.calcOffset()); }, 150);
         }
 
         // --- DESKTOP CLICK-AND-DRAG PAN ---
@@ -771,15 +793,6 @@ if (window.PointerEvent) {
             viewportContainer.scrollTop = scrollT - (e.pageY - panStartY);
         });
 
-        // --- PERFECT-SYNC ZOOM ENGINE ---
-        function zoomBoard(amount) {
-            viewZoom += amount;
-            if (viewZoom < 0.4) viewZoom = 0.4;
-            if (viewZoom > 3.0) viewZoom = 3.0;
-            document.getElementById('board-wrapper').style.transform = `scale(${viewZoom})`;
-            setTimeout(() => { fabricCanvases.forEach(fc => fc.canvas.calcOffset()); }, 150);
-        }
-
         // --- AI READ ALOUD ---
         function readAloud() {
             let foundText = false;
@@ -800,7 +813,6 @@ if (window.PointerEvent) {
         // --- STORAGE & BACKUP ---
         function manualSave() {
             localStorage.setItem('smartboard_mac_notes', JSON.stringify(pageDrawings));
-            // Instead of toast, we update the title temporarily
             const title = document.getElementById('top-title');
             const original = title.textContent;
             title.textContent = "Saved to Mac Storage ✅";
@@ -814,60 +826,50 @@ if (window.PointerEvent) {
             }
         }, 60000);
 
-        // --- SPECIFIC CLEAR ENGINGES ---
-
-// Option A: Wipes out only the page the teacher is currently viewing or drawing on
-function clearCurrentPage() {
-    // Find the canvas layer that currently has active user focus
-    const activeObject = document.activeElement;
-    
-    // Fallback: Clear the active canvas in our engine array loop
-    fabricCanvases.forEach(fc => {
-        if (fc.canvas.getActiveObject() || fabricCanvases.length === 1) {
-            fc.canvas.clear();
-            pageDrawings[fc.key] = fc.canvas.toJSON();
+        function clearCurrentPage() {
+            fabricCanvases.forEach(fc => {
+                if (fc.canvas.getActiveObject() || fabricCanvases.length === 1) {
+                    fc.canvas.clear();
+                    pageDrawings[fc.key] = fc.canvas.toJSON();
+                }
+            });
+            
+            if (fabricCanvases.length > 1) {
+                const confirmClear = confirm("Click 'OK' to clear notes across all pages, or select an element on a specific page to clear it individually.");
+                if (confirmClear) { clearAllPages(); }
+            } else {
+                manualSave(); 
+            }
         }
-    });
-    
-    // If no explicit selection, ask the teacher to click on the target page canvas area
-    if (fabricCanvases.length > 1) {
-        const confirmClear = confirm("Click 'OK' to clear notes across all pages, or select an element on a specific page to clear it individually.");
-        if (confirmClear) {
-            clearAllPages();
-        }
-    } else {
-        manualSave(); // Commit empty canvas state to localStorage
-    }
-}
 
-// Option B: The Master Reset loop that clears absolutely everything across all pages
-function clearAllPages() {
-    const doubleCheck = confirm("⚠️ Are you sure you want to clear ALL notes and drawings across every single page in this textbook?");
-    
-    if (doubleCheck) {
-        // Loop through every initialized Fabric instance in the continuous wrapper stack
-        fabricCanvases.forEach(fc => {
-            fc.canvas.clear(); // Wipes drawings off the glass
-            pageDrawings[fc.key] = fc.canvas.toJSON(); // Updates tracking state dictionary to empty string
-        });
-        
-        // Push the completely clean state matrix straight into browser local cache storage
-        localStorage.setItem('smartboard_mac_notes', JSON.stringify(pageDrawings));
-        
-        // Temporarily change the top Mac status bar title to notify the teacher
-        const title = document.getElementById('top-title');
-        const originalText = title.textContent;
-        title.textContent = "Entire Board Reset Clean 🗑️";
-        title.style.color = "#ff3b30";
-        setTimeout(() => { 
-            title.textContent = originalText; 
-            title.style.color = "#666"; 
-        }, 2500);
-    }
-}
+        function clearAllPages() {
+            const doubleCheck = confirm("⚠️ Are you sure you want to clear ALL notes and drawings across every single page in this textbook?");
+            if (doubleCheck) {
+                fabricCanvases.forEach(fc => {
+                    fc.canvas.clear(); 
+                    pageDrawings[fc.key] = fc.canvas.toJSON(); 
+                });
+                localStorage.setItem('smartboard_mac_notes', JSON.stringify(pageDrawings));
+                
+                const title = document.getElementById('top-title');
+                const originalText = title.textContent;
+                title.textContent = "Entire Board Reset Clean 🗑️";
+                title.style.color = "#ff3b30";
+                setTimeout(() => { 
+                    title.textContent = originalText; 
+                    title.style.color = "#666"; 
+                }, 2500);
+            }
+        }
 
         function closeBook() {
             manualSave();
+            
+            // Close popups when exiting
+            ['zoom-slider-popup', 'thickness-slider-popup'].forEach(pid => {
+                document.getElementById(pid).classList.remove('show');
+            });
+
             fabricCanvases.forEach(fc => fc.canvas.dispose());
             fabricCanvases = [];
             document.getElementById('top-title').textContent = "Dashboard";

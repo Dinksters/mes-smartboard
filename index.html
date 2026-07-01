@@ -622,7 +622,7 @@
             });
         }
 
-       // --- UPDATED: PIXEL-LEVEL DRAWING & ERASING EVENTS ---
+// --- CORE DRAWING & ERASING EVENTS ---
 function setupFabricEvents(fCanvas, storageKey) {
     if (pageDrawings[storageKey]) { 
         fCanvas.loadFromJSON(pageDrawings[storageKey], fCanvas.renderAll.bind(fCanvas)); 
@@ -641,15 +641,14 @@ function setupFabricEvents(fCanvas, storageKey) {
             return;
         }
         
-        // 2. TRUE PIXEL ERASER ENGINE (MouseDown)
+        // 2. Pixel Swipe Eraser Activation
         if (currentTool === 'swipe-eraser') {
             isSwipeErasing = true;
-            fCanvas.isDrawingMode = false; // Manually handle drawing path pixels
             erasePixelsAtPoint(fCanvas, options);
             return;
         }
         
-        // 3. Text Tool
+        // 3. Text Injection Framework
         if (currentTool === 'text') {
             const pointer = fCanvas.getPointer(options.e);
             const textObj = new fabric.IText('Type...', { left: pointer.x, top: pointer.y, fill: activeColor, fontSize: 32, fontFamily: '-apple-system, sans-serif', fontWeight: 'bold' });
@@ -658,7 +657,7 @@ function setupFabricEvents(fCanvas, storageKey) {
             return;
         }
 
-        // 4. Smart Shapes
+        // 4. Multi-Device Shape Drafting Engine
         if (['rect', 'circle', 'triangle'].includes(currentTool)) {
             if (options.target) return; 
             isDrawingShape = true;
@@ -674,7 +673,6 @@ function setupFabricEvents(fCanvas, storageKey) {
     });
 
     fCanvas.on('mouse:move', function(o) {
-        // TRUE PIXEL ERASER ENGINE (MouseMove)
         if (currentTool === 'swipe-eraser' && isSwipeErasing) {
             erasePixelsAtPoint(fCanvas, o);
             return;
@@ -706,25 +704,41 @@ function setupFabricEvents(fCanvas, storageKey) {
     fCanvas.on('object:modified', () => pageDrawings[storageKey] = fCanvas.toJSON());
 }
 
-// --- TRUE PIXEL COMPOSITE ERASING ALGORITHM ---
+// --- PIXEL VECTOR-SUBTRACTION ERASING ALGORITHM ---
 function erasePixelsAtPoint(fCanvas, o) {
     const pointer = fCanvas.getPointer(o.e);
     const size = parseInt(document.getElementById('weight-slider').value) * 1.5; 
     const objects = fCanvas.getObjects();
 
     objects.forEach(obj => {
-        // True pixel cutting applies exclusively to pencil lines/paths natively in Fabric.js
         if (obj.type === 'path') {
-            const pathContext = fCanvas.getContext();
-            // Leverages canvas alpha mask subtraction to slice ink coordinates down at pixel level
-            pathContext.save();
-            pathContext.globalCompositeOperation = 'destination-out';
-            pathContext.beginPath();
-            pathContext.arc(pointer.x, pointer.y, size, 0, Math.PI * 2, false);
-            pathContext.fill();
-            pathContext.restore();
+            let pathData = obj.path;
+            let modified = false;
+            
+            // Reconstructs lines dynamically by trimming coordinate sub-arrays inside brush contact radius
+            let newPath = pathData.filter(cmd => {
+                if (cmd.length >= 3) {
+                    const x = cmd[cmd.length - 2];
+                    const y = cmd[cmd.length - 1];
+                    const distance = Math.sqrt(Math.pow(x - pointer.x, 2) + Math.pow(y - pointer.y, 2));
+                    if (distance < size) {
+                        modified = true;
+                        return false; 
+                    }
+                }
+                return true;
+            });
+
+            if (modified) {
+                if (newPath.length < 2) {
+                    fCanvas.remove(obj);
+                } else {
+                    if (newPath[0][0] !== 'M') newPath[0][0] = 'M'; 
+                    obj.set({ path: newPath });
+                    obj.setCoords();
+                }
+            }
         } else {
-            // Smart shape fallback: handles structural removal if non-pencil path elements are scrubbed
             const bound = obj.getBoundingRect();
             if (
                 pointer.x >= bound.left - size &&

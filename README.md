@@ -1,8 +1,8 @@
 # 🏫 MES Smartboard (Class 7A Portal)
 
-An interactive, all-in-one web-based classroom portal and digital dashboard custom-tailored for the students and teachers of class 7A at **MES Campus School**. 
+An interactive, all-in-one web-based classroom portal and digital dashboard custom-tailored for the students and teachers of class 7A at **MES Campus School, Kuttippuram**. 
 
-Live Demo: [View MES Smartboard](https://github.io)
+Live Demo: [View MES Smartboard](https://dinksters.github.io/mes-smartboard)
 
 ---
 

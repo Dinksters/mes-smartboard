@@ -103,8 +103,9 @@
         #whiteboard-view { display: none; width: 100vw; height: calc(100vh - 30px); position: relative; background: #E5E5EA; }
         
         #viewport {
-            width: 100%; height: 100%; overflow: auto; position: relative; touch-action: auto;
+            width: 100%; height: 100%; overflow: auto; position: relative; touch-action: none;
             padding-bottom: 150px; 
+            -webkit-overflow-scrolling: touch;
         }
 
         #board-wrapper {
@@ -164,7 +165,6 @@
         .popup-panel.show { display: flex; }
         .popup-panel label { font-size: 12px; font-weight: 600; color: var(--mac-dark); }
         
-        /* Mac-style Range Slider */
         input[type=range] {
             -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer;
         }
@@ -180,7 +180,7 @@
         /* --- MOBILE RESPONSIVE UPGRADES --- */
         @media (max-width: 768px) {
             #dashboard-view { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; max-height: 250px; border-right: none; border-bottom: 1px solid var(--border); padding: 15px; }
+            .sidebar { width: 100%; height: auto; max-height: 250px; border-right: none; border-bottom: 1px solid var(--border); padding: 15px; overflow-y: auto;}
             .main-content { padding: 20px; }
             .grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
             .mac-menubar { font-size: 11px; }
@@ -268,15 +268,13 @@
                 <input type="range" id="zoom-slider" min="0.4" max="3.0" step="0.1" value="1.3" oninput="handleZoomSlider(this.value)">
             </div>
             <div class="popup-panel" id="thickness-slider-popup">
-                <label>Pen Thickness</label>
-                <input type="range" id="weight-slider" min="1" max="30" step="1" value="4" oninput="updateProfile()">
+                <label>Brush Settings</label>
+                <input type="range" id="weight-slider" min="1" max="50" step="1" value="4" oninput="updateProfile()">
             </div>
 
             <div class="mac-dock">
                 <!-- System Actions -->
                 <button class="dock-btn" onclick="closeBook()" title="Exit to Dashboard">🏠</button>
-                
-                <!-- INSTRUCTION: New Pop-up Slider triggers -->
                 <button class="dock-btn" onclick="togglePopup('zoom-slider-popup')" title="Adjust Zoom">🔍</button>
                 <button class="dock-btn" onclick="exportToPDF()" title="Print/Export PDF">🖨️</button>
                 <button class="dock-btn" onclick="readAloud()" title="AI Read Aloud">🗣️</button>
@@ -288,9 +286,7 @@
                 <button class="dock-btn active" id="tool-pen" onclick="setTool('pen')" title="Pen">🖊️</button>
                 <button class="dock-btn" id="tool-highlighter" onclick="setTool('highlighter')" title="Highlighter">🖍️</button>
                 <button class="dock-btn" id="tool-text" onclick="setTool('text')" title="Type Text">🔤</button>
-                
-                <!-- INSTRUCTION: Pen size slider trigger replaces the old dropdown -->
-                <button class="dock-btn" onclick="togglePopup('thickness-slider-popup')" title="Adjust Pen Size">📏</button>
+                <button class="dock-btn" onclick="togglePopup('thickness-slider-popup')" title="Adjust Size">📏</button>
                 
                 <div class="dock-divider"></div>
 
@@ -303,7 +299,8 @@
                 
                 <div class="dock-divider"></div>
 
-                <button class="dock-btn" id="tool-eraser" onclick="setTool('eraser')" title="Object Eraser">🧽</button>
+                <!-- Normal Pixel Eraser + Clear Buttons -->
+                <button class="dock-btn" id="tool-eraser" onclick="setTool('eraser')" title="Whiteboard Rubber Eraser">🧽</button>
                 <button class="dock-btn" onclick="clearCurrentPage()" title="Clear This Page Only">📄🧹</button>
                 <button class="dock-btn" onclick="clearAllPages()" style="color: #ff3b30;" title="Clear Entire Document">🗑️💥</button>
                 <button class="dock-btn" id="tool-rect" onclick="setTool('rect')">⬜</button>
@@ -322,8 +319,7 @@
             document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }, 1000);
 
-        // --- FULL DATABASE STRUCTURE ---
-        // INSTRUCTION: The files are now precisely organized into nested folders exactly as captured in your repository images.
+        // --- FULL REPOSITORY MATRIX MAPPING ---
         const database = {
             "English": [
                 { title: "1 - 1", file: "Subjects/English/1 - 1.pdf" }, { title: "1 - 2", file: "Subjects/English/1 - 2.pdf" }, { title: "1 - 3", file: "Subjects/English/1 - 3.pdf" }, { title: "1 - Transcript", file: "Subjects/English/1 - Transcript.pdf" },
@@ -378,24 +374,19 @@
         let currentSection = "English";
         let activeBook = null;
         let pdfDoc = null;
-        
         let baseScale = 1.3; 
         let viewZoom = 1.0; 
-        
         let fabricCanvases = [];
         let currentTool = 'pen';
         let activeColor = '#FF3B30'; 
         let pageDrawings = JSON.parse(localStorage.getItem('smartboard_mac_notes')) || {};
 
-        // --- DASHBOARD ROUTING ---
         function selectSection(sectionName) {
             currentSection = sectionName;
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`btn-${sectionName}`).classList.add('active');
-            
             document.getElementById('ai-view-container').style.display = 'none';
             document.getElementById('books-view-container').style.display = 'block';
-            
             document.getElementById('dashboard-title').textContent = titleMap[sectionName];
             renderDashboardBooks();
         }
@@ -413,23 +404,16 @@
             });
         }
 
-        // --- UI POPUP TOGGLE ROUTING ---
         function togglePopup(id) {
             ['zoom-slider-popup', 'thickness-slider-popup'].forEach(pid => {
-                if (pid !== id) {
-                    const el = document.getElementById(pid);
-                    if (el) el.classList.remove('show');
-                }
+                if (pid !== id) document.getElementById(pid).classList.remove('show');
             });
-            const target = document.getElementById(id);
-            if (target) target.classList.toggle('show');
+            document.getElementById(id).classList.toggle('show');
         }
 
-        // --- MES AI CHAT (LOCAL SIMULATOR) ---
         function openAIView() {
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('btn-AI').classList.add('active');
-            
             document.getElementById('books-view-container').style.display = 'none';
             document.getElementById('ai-view-container').style.display = 'flex';
         }
@@ -438,68 +422,37 @@
             const input = document.getElementById('ai-input');
             const chatBox = document.getElementById('chat-box');
             const query = input.value.trim().toLowerCase();
-            
             if (query === "") return;
 
             const userMsg = document.createElement('div');
             userMsg.className = 'msg user';
             userMsg.textContent = input.value;
             chatBox.appendChild(userMsg);
-
             input.value = '';
             chatBox.scrollTop = chatBox.scrollHeight;
-
-            const localKnowledgeBase = {
-                "hello": "Hello! I am your local MES SmartOS AI assistant. Ask me for lesson plans, quizzes, or subject guidelines!",
-                "hi": "Hello! How can I assist you with your textbook syllabus today?",
-                "english lesson plan": "📚 **English Chapter 2 Lesson Plan Outline:**\n• **Introduction (10 mins):** Read the introductory story 'Animals, Birds, and Dr. Dolittle'.\n• **Core Activity (20 mins):** Practice pronunciation of core vocabulary and answer text comprehension questions.\n• **Wrap-Up (10 mins):** Students write 3 sentences about their favorite domestic animal.",
-                "english quiz": "📝 **Quick English Pop-Quiz Generator:**\n1. Who is the main character introducing the unit?\n2. Write the antonym of 'Humour'.\n3. True or False: Animals communicate their emotions through distinct body language.",
-                "malayalam": "🌴 **Malayalam Language Study Framework:**\nFocus heavily on core language structural rules, script definitions, prose dictation, and traditional Kerala cultural history integration checkpoints.",
-                "maths quiz": "📐 **Maths Quick Diagnostic Check:**\n1. Solve for $x$: $2x + 5 = 15$.\n2. What is the sum of the angles in a perfect Euclidean triangle?\n3. Calculate the perimeter of a rectangle with a width of 5cm and height of 10cm.",
-                "geometry": "⬜ **Geometry Key Blueprint Formulae:**\n• Area of Rectangle = $\\text{width} \\times \\text{height}$\n• Area of Circle = $\\pi r^2$\n• Angles of a Triangle always sum up to exactly $180^\\circ$.",
-                "science lesson": "🔬 **General Science Chapter 1 Blueprint:**\nFocus elements: Core molecular structures, basic physical chemical properties, and classroom laboratory safety protocols when conducting virtual element mixing experiments.",
-                "help": "You can ask me things like:\n• 'English Lesson Plan'\n• 'English Quiz'\n• 'Maths Quiz'\n• 'Geometry'\n• 'Science Lesson'"
-            };
 
             const loadingMsg = document.createElement('div');
             loadingMsg.className = 'msg ai';
             loadingMsg.textContent = "🤖 Processing syllabus database...";
             chatBox.appendChild(loadingMsg);
-            chatBox.scrollTop = chatBox.scrollHeight;
 
             setTimeout(() => {
                 chatBox.removeChild(loadingMsg);
                 const aiMsg = document.createElement('div');
                 aiMsg.className = 'msg ai';
-                
-                let matchedResponse = "";
-                for (let keyword in localKnowledgeBase) {
-                    if (query.includes(keyword)) {
-                        matchedResponse = localKnowledgeBase[keyword];
-                        break;
-                    }
-                }
-
-                if (matchedResponse !== "") {
-                    aiMsg.innerHTML = matchedResponse.replace(/\n/g, "<br>");
-                } else {
-                    aiMsg.innerHTML = "🧠 **MES Custom AI Search Note:**<br>I couldn't find an exact match for that specific topic query in my local cache script data.<br><br>Type **'help'** to see a list of topics you can ask me about!";
-                }
-
+                aiMsg.innerHTML = "🧠 **MES Custom AI Note:** This simulation container can be expanded by adding key-pairs to `localKnowledgeBase`.";
                 chatBox.appendChild(aiMsg);
                 chatBox.scrollTop = chatBox.scrollHeight;
-            }, 600); 
+            }, 600);
         }
 
-        // --- DYNAMIC, LAG-FREE ENDLESS CANVAS ENGINE ---
+        // --- DYNAMIC ENDLESS CANVAS ---
         function openBlankCanvas() {
             activeBook = { title: "Blank Canvas", isBlank: true };
             viewZoom = 1.0;
             document.getElementById('zoom-slider').value = viewZoom;
-            
             document.getElementById('board-wrapper').style.transform = `scale(1)`;
             document.getElementById('top-title').textContent = "Endless Canvas";
-            
             document.getElementById('dashboard-view').style.display = 'none';
             document.getElementById('whiteboard-view').style.display = 'flex';
 
@@ -509,18 +462,24 @@
 
             const pageDiv = document.createElement('div');
             pageDiv.className = 'pdf-page-container';
-            pageDiv.style.width = '1200px'; 
-            pageDiv.style.height = '1600px'; 
+            pageDiv.style.width = '1200px'; pageDiv.style.height = '1600px'; 
 
             const drawCanv = document.createElement('canvas');
             pageDiv.appendChild(drawCanv);
             wrapper.appendChild(pageDiv);
 
             const fCanvas = new fabric.Canvas(drawCanv, { 
-                width: 1200, height: 1600, isDrawingMode: true, allowTouchScrolling: false 
+                width: 1200, height: 1600, isDrawingMode: true, allowTouchScrolling: false, enableRetinaScaling: false
             });
-            fCanvas.freeDrawingBrush.decimate = 3; 
+            
+            // iPad Touch Normalizer Fix
+            if (window.PointerEvent) {
+                fCanvas.on('mouse:down', function(e) { fCanvas._onMouseDown(e.e); });
+                fCanvas.on('mouse:move', function(e) { fCanvas._onMouseMove(e.e); });
+                fCanvas.on('mouse:up', function(e) { fCanvas._onMouseUp(e.e); });
+            }
 
+            fCanvas.freeDrawingBrush.decimate = 3; 
             fabricCanvases.push({ canvas: fCanvas, key: `BlankCanvas_Master` });
             setupFabricEvents(fCanvas, `BlankCanvas_Master`);
 
@@ -535,15 +494,17 @@
             });
 
             setTool('pen');
+            // Center viewport
+            const viewport = document.getElementById('viewport');
+            viewport.scrollLeft = (1200 - window.innerWidth) / 2;
         }
 
-        // --- CONTINUOUS SCROLL PDF ENGINE ---
+        // --- CONTINUOUS SCROLL PDF ---
         function openBook(book) {
             activeBook = book;
             activeBook.isBlank = false;
             viewZoom = 1.0;
             document.getElementById('zoom-slider').value = viewZoom;
-            
             document.getElementById('board-wrapper').style.transform = `scale(1)`;
             document.getElementById('top-title').textContent = book.title;
             
@@ -560,54 +521,44 @@
                 renderContinuousPages();
             }).catch(err => {
                 console.error(err);
-                alert("File loading error. Ensure path declarations match perfectly in the code.");
+                alert("File loading error. Check directory configurations.");
                 closeBook();
             });
         }
 
         function renderContinuousPages() {
             const wrapper = document.getElementById('board-wrapper');
-            wrapper.innerHTML = ''; 
-            fabricCanvases = [];
-            
+            wrapper.innerHTML = ''; fabricCanvases = [];
             let promises = [];
+
             for (let num = 1; num <= pdfDoc.numPages; num++) {
                 promises.push(pdfDoc.getPage(num).then(page => {
                     const pageDiv = document.createElement('div');
                     pageDiv.className = 'pdf-page-container';
-                    
                     const pdfCanv = document.createElement('canvas');
-                    pdfCanv.style.position = 'absolute';
-                    pdfCanv.style.zIndex = '5';
-                    
+                    pdfCanv.style.position = 'absolute'; pdfCanv.style.zIndex = '5';
                     const drawCanv = document.createElement('canvas');
-                    drawCanv.style.position = 'absolute';
-                    drawCanv.style.zIndex = '10';
-
-                    pageDiv.appendChild(pdfCanv);
-                    pageDiv.appendChild(drawCanv);
-                    
+                    drawCanv.style.position = 'absolute'; drawCanv.style.zIndex = '10';
+                    pageDiv.appendChild(pdfCanv); pageDiv.appendChild(drawCanv);
                     return { page, num, pageDiv, pdfCanv, drawCanv };
                 }));
             }
 
             Promise.all(promises).then(results => {
                 results.sort((a,b) => a.num - b.num);
-
                 results.forEach(res => {
                     wrapper.appendChild(res.pageDiv);
-                    
                     const viewportRect = res.page.getViewport({ scale: baseScale });
                     res.pageDiv.style.width = `${viewportRect.width}px`;
                     res.pageDiv.style.height = `${viewportRect.height}px`;
-                    res.pdfCanv.width = viewportRect.width;
-                    res.pdfCanv.height = viewportRect.height;
+                    res.pdfCanv.width = viewportRect.width; res.pdfCanv.height = viewportRect.height;
 
                     res.page.render({ canvasContext: res.pdfCanv.getContext('2d'), viewport: viewportRect }).promise.then(() => {
                         const fCanvas = new fabric.Canvas(res.drawCanv, { 
                             width: viewportRect.width, height: viewportRect.height, isDrawingMode: true, allowTouchScrolling: false, enableRetinaScaling: false 
                         });
 
+                        // iPad Touch Pointer Normalization
                         if (window.PointerEvent) {
                             fCanvas.on('mouse:down', function(e) { fCanvas._onMouseDown(e.e); });
                             fCanvas.on('mouse:move', function(e) { fCanvas._onMouseMove(e.e); });
@@ -620,7 +571,6 @@
                         setupFabricEvents(fCanvas, storageKey);
                     });
                 });
-                
                 setTimeout(() => { setTool(currentTool); }, 300);
             });
         }
@@ -635,12 +585,6 @@
             let tempObj = null;
 
             fCanvas.on('mouse:down', function(options) {
-                if (currentTool === 'eraser' && options.target) {
-                    fCanvas.remove(options.target);
-                    pageDrawings[storageKey] = fCanvas.toJSON();
-                    return;
-                }
-                
                 if (currentTool === 'text') {
                     const pointer = fCanvas.getPointer(options.e);
                     const textObj = new fabric.IText('Type...', {
@@ -651,13 +595,11 @@
                     textObj.enterEditing();
                     textObj.selectAll();
                     setTool('pen'); 
-                    pageDrawings[storageKey] = fCanvas.toJSON();
                     return;
                 }
 
                 if (['rect', 'circle', 'triangle'].includes(currentTool)) {
-                    if (options.target) return; // Prevent shape duping on click
-                    
+                    if (options.target) return; 
                     isDrawingShape = true;
                     const pointer = fCanvas.getPointer(options.e);
                     shapeStartX = pointer.x; shapeStartY = pointer.y;
@@ -666,7 +608,6 @@
                     if (currentTool === 'rect') tempObj = new fabric.Rect({ left: shapeStartX, top: shapeStartY, width: 0, height: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
                     else if (currentTool === 'circle') tempObj = new fabric.Circle({ left: shapeStartX, top: shapeStartY, radius: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
                     else if (currentTool === 'triangle') tempObj = new fabric.Triangle({ left: shapeStartX, top: shapeStartY, width: 0, height: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
-                    
                     fCanvas.add(tempObj);
                 }
             });
@@ -674,7 +615,6 @@
             fCanvas.on('mouse:move', function(o) {
                 if (!isDrawingShape) return;
                 const pointer = fCanvas.getPointer(o.e);
-                
                 if (currentTool === 'rect' || currentTool === 'triangle') {
                     if (shapeStartX > pointer.x) tempObj.set({ left: Math.abs(pointer.x) });
                     if (shapeStartY > pointer.y) tempObj.set({ top: Math.abs(pointer.y) });
@@ -691,14 +631,11 @@
             });
 
             fCanvas.on('mouse:up', function() {
-                if (isDrawingShape) {
-                    isDrawingShape = false; tempObj = null;
-                    pageDrawings[storageKey] = fCanvas.toJSON();
-                }
+                if (isDrawingShape) { isDrawingShape = false; tempObj = null; saveTemporaryDrawing(); }
             });
 
-            fCanvas.on('object:added', () => pageDrawings[storageKey] = fCanvas.toJSON());
-            fCanvas.on('object:modified', () => pageDrawings[storageKey] = fCanvas.toJSON());
+            fCanvas.on('object:added', saveTemporaryDrawing);
+            fCanvas.on('object:modified', saveTemporaryDrawing);
         }
 
         // --- HARDWARE TOOL ROUTING ---
@@ -707,7 +644,6 @@
             document.querySelectorAll('.dock-btn').forEach(btn => btn.classList.remove('active'));
             if(document.getElementById(`tool-${tool}`)) document.getElementById(`tool-${tool}`).classList.add('active');
 
-            const viewportContainer = document.getElementById('viewport');
             const wrapper = document.getElementById('board-wrapper');
 
             if (tool === 'move') {
@@ -717,22 +653,25 @@
                     fc.canvas.forEachObject(o => o.selectable = false);
                 });
                 wrapper.style.pointerEvents = 'none'; 
-                viewportContainer.style.touchAction = 'auto'; // Touch pan on mobile
-                viewportContainer.style.cursor = 'grab'; // Mouse pan on desktop
+                viewportContainer.style.cursor = 'grab';
             } else {
                 wrapper.style.pointerEvents = 'all'; 
-                viewportContainer.style.touchAction = 'none'; // Lock screen for drawing
                 viewportContainer.style.cursor = 'default';
 
                 fabricCanvases.forEach(fc => {
-                    fc.canvas.selection = true;
-                    fc.canvas.forEachObject(o => o.selectable = true);
-
-                    if (['rect', 'circle', 'triangle', 'eraser', 'text'].includes(tool)) {
-                        fc.canvas.isDrawingMode = false;
-                    } else {
+                    // Reset to custom drawing/erasing states
+                    if (tool === 'eraser') {
                         fc.canvas.isDrawingMode = true;
+                        // NORMAL WHITEBOARD RUBBER ERASER ENGINE
+                        fc.canvas.freeDrawingBrush = new fabric.EraserBrush(fc.canvas);
+                    } else if (['pen', 'highlighter'].includes(tool)) {
+                        fc.canvas.isDrawingMode = true;
+                        fc.canvas.freeDrawingBrush = new fabric.PencilBrush(fc.canvas);
+                    } else {
+                        fc.canvas.isDrawingMode = false;
                     }
+                    fc.canvas.selection = !['pen', 'highlighter', 'eraser'].includes(tool);
+                    fc.canvas.forEachObject(o => o.selectable = !['pen', 'highlighter', 'eraser'].includes(tool));
                 });
                 updateProfile();
             }
@@ -750,14 +689,22 @@
 
             fabricCanvases.forEach(fc => {
                 if (currentTool === 'pen') {
-                    fc.canvas.freeDrawingBrush.color = activeColor;
-                    fc.canvas.freeDrawingBrush.width = weight;
+                    if (fc.canvas.freeDrawingBrush) {
+                        fc.canvas.freeDrawingBrush.color = activeColor;
+                        fc.canvas.freeDrawingBrush.width = weight;
+                    }
                 } else if (currentTool === 'highlighter') {
-                    const r = parseInt(activeColor.slice(1,3), 16);
-                    const g = parseInt(activeColor.slice(3,5), 16);
-                    const b = parseInt(activeColor.slice(5,7), 16);
-                    fc.canvas.freeDrawingBrush.color = `rgba(${r}, ${g}, ${b}, 0.35)`;
-                    fc.canvas.freeDrawingBrush.width = weight * 4;
+                    if (fc.canvas.freeDrawingBrush) {
+                        const r = parseInt(activeColor.slice(1,3), 16);
+                        const g = parseInt(activeColor.slice(3,5), 16);
+                        const b = parseInt(activeColor.slice(5,7), 16);
+                        fc.canvas.freeDrawingBrush.color = `rgba(${r}, ${g}, ${b}, 0.35)`;
+                        fc.canvas.freeDrawingBrush.width = weight * 4;
+                    }
+                } else if (currentTool === 'eraser') {
+                    if (fc.canvas.freeDrawingBrush) {
+                        fc.canvas.freeDrawingBrush.width = weight * 2; // Make eraser brush thicker
+                    }
                 }
             });
         }
@@ -766,110 +713,108 @@
         function handleZoomSlider(val) {
             viewZoom = parseFloat(val);
             document.getElementById('board-wrapper').style.transform = `scale(${viewZoom})`;
-            setTimeout(() => { fabricCanvases.forEach(fc => fc.canvas.calcOffset()); }, 150);
+            setTimeout(() => { fabricCanvases.forEach(fc => fc.canvas.calcOffset()); }, 100);
         }
 
-        // --- DESKTOP CLICK-AND-DRAG PAN ---
+        // --- UNIFIED IPAD TOUCH & DESKTOP PAN ENGINE ---
         const viewportContainer = document.getElementById('viewport');
         let isPanning = false, panStartX, panStartY, scrollL, scrollT;
 
-        viewportContainer.addEventListener('mousedown', (e) => {
+        function getPointerCoords(e) {
+            if (e.touches && e.touches.length > 0) {
+                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+            return { x: e.clientX, y: e.clientY };
+        }
+
+        function startPan(e) {
             if (currentTool !== 'move') return;
             isPanning = true;
             viewportContainer.style.cursor = 'grabbing';
-            panStartX = e.pageX; panStartY = e.pageY;
+            const coords = getPointerCoords(e);
+            panStartX = coords.x; panStartY = coords.y;
             scrollL = viewportContainer.scrollLeft; scrollT = viewportContainer.scrollTop;
-        });
+        }
 
-        window.addEventListener('mouseup', () => { 
-            isPanning = false; 
-            if(currentTool === 'move') viewportContainer.style.cursor = 'grab'; 
-        });
-
-        window.addEventListener('mousemove', (e) => {
+        function movePan(e) {
             if (!isPanning || currentTool !== 'move') return;
-            e.preventDefault();
-            viewportContainer.scrollLeft = scrollL - (e.pageX - panStartX);
-            viewportContainer.scrollTop = scrollT - (e.pageY - panStartY);
-        });
+            if (e.cancelable) { e.preventDefault(); e.stopPropagation(); }
+            const coords = getPointerCoords(e);
+            viewportContainer.scrollLeft = scrollL - (coords.x - panStartX);
+            viewportContainer.scrollTop = scrollT - (coords.y - panStartY);
+        }
 
-        // --- AI READ ALOUD ---
+        function endPan() {
+            isPanning = false;
+            if(currentTool === 'move') viewportContainer.style.cursor = 'grab';
+        }
+
+        viewportContainer.addEventListener('mousedown', startPan);
+        window.addEventListener('mouseup', endPan);
+        window.addEventListener('mousemove', movePan);
+
+        viewportContainer.addEventListener('touchstart', startPan, { passive: false });
+        viewportContainer.addEventListener('touchmove', movePan, { passive: false });
+        window.addEventListener('touchend', endPan);
+
+        // --- SYSTEM CORE FUNCTIONS ---
         function readAloud() {
             let foundText = false;
             fabricCanvases.forEach(fc => {
                 const activeObj = fc.canvas.getActiveObject();
                 if (activeObj && activeObj.type === 'i-text') {
                     const speech = new SpeechSynthesisUtterance(activeObj.text);
-                    speech.lang = 'en-IN'; 
-                    window.speechSynthesis.speak(speech);
+                    speech.lang = 'en-IN'; window.speechSynthesis.speak(speech);
                     foundText = true;
                 }
             });
-            if(!foundText) alert("Please select typed text to read aloud.");
+            if(!foundText) alert("Select typed text to read aloud.");
         }
 
         function exportToPDF() { if (activeBook) window.print(); }
 
-        // --- STORAGE & BACKUP ---
+        function saveTemporaryDrawing() {
+            if (activeBook) {
+                fabricCanvases.forEach(fc => { pageDrawings[fc.key] = fc.canvas.toJSON(); });
+            }
+        }
+
         function manualSave() {
+            saveTemporaryDrawing();
             localStorage.setItem('smartboard_mac_notes', JSON.stringify(pageDrawings));
             const title = document.getElementById('top-title');
             const original = title.textContent;
-            title.textContent = "Saved to Mac Storage ✅";
-            title.style.color = "#34C759";
+            title.textContent = "Saved to Mac Storage ✅"; title.style.color = "#34C759";
             setTimeout(() => { title.textContent = original; title.style.color = "#666"; }, 2000);
         }
 
-        setInterval(() => {
-            if (activeBook && fabricCanvases.length > 0) {
-                localStorage.setItem('smartboard_mac_notes', JSON.stringify(pageDrawings));
-            }
-        }, 60000);
+        setInterval(() => { if (activeBook) localStorage.setItem('smartboard_mac_notes', JSON.stringify(pageDrawings)); }, 60000);
+
+        function loadSavedNotes() {
+            fabricCanvases.forEach(fc => {
+                if (pageDrawings[fc.key]) fc.canvas.loadFromJSON(pageDrawings[fc.key], fc.canvas.renderAll.bind(fc.canvas));
+            });
+        }
 
         function clearCurrentPage() {
             fabricCanvases.forEach(fc => {
                 if (fc.canvas.getActiveObject() || fabricCanvases.length === 1) {
-                    fc.canvas.clear();
-                    pageDrawings[fc.key] = fc.canvas.toJSON();
+                    fc.canvas.clear(); pageDrawings[fc.key] = fc.canvas.toJSON();
                 }
             });
-            
-            if (fabricCanvases.length > 1) {
-                const confirmClear = confirm("Click 'OK' to clear notes across all pages, or select an element on a specific page to clear it individually.");
-                if (confirmClear) { clearAllPages(); }
-            } else {
-                manualSave(); 
-            }
+            manualSave();
         }
 
         function clearAllPages() {
-            const doubleCheck = confirm("⚠️ Are you sure you want to clear ALL notes and drawings across every single page in this textbook?");
-            if (doubleCheck) {
-                fabricCanvases.forEach(fc => {
-                    fc.canvas.clear(); 
-                    pageDrawings[fc.key] = fc.canvas.toJSON(); 
-                });
+            if (confirm("⚠️ Clear ALL notes across every single page?")) {
+                fabricCanvases.forEach(fc => { fc.canvas.clear(); pageDrawings[fc.key] = fc.canvas.toJSON(); });
                 localStorage.setItem('smartboard_mac_notes', JSON.stringify(pageDrawings));
-                
-                const title = document.getElementById('top-title');
-                const originalText = title.textContent;
-                title.textContent = "Entire Board Reset Clean 🗑️";
-                title.style.color = "#ff3b30";
-                setTimeout(() => { 
-                    title.textContent = originalText; 
-                    title.style.color = "#666"; 
-                }, 2500);
             }
         }
 
         function closeBook() {
             manualSave();
-            
-            // Close popups when exiting
-            ['zoom-slider-popup', 'thickness-slider-popup'].forEach(pid => {
-                document.getElementById(pid).classList.remove('show');
-            });
-
+            ['zoom-slider-popup', 'thickness-slider-popup'].forEach(pid => document.getElementById(pid).classList.remove('show'));
             fabricCanvases.forEach(fc => fc.canvas.dispose());
             fabricCanvases = [];
             document.getElementById('top-title').textContent = "Dashboard";
@@ -877,7 +822,6 @@
             document.getElementById('dashboard-view').style.display = 'flex';
         }
 
-        // Boot
         selectSection('English');
     </script>
 </body>

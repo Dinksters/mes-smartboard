@@ -341,52 +341,52 @@
             document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }, 1000);
 
-        // --- FULL REPOSITORY MATRIX MAPPING ---
+        // --- FULL REPOSITORY MATRIX MAPPING (ROOT PATHS FIXED) ---
         const database = {
             "English": [
-                { title: "1 - 1", file: "Subjects/English/1 - 1.pdf" }, { title: "1 - 2", file: "Subjects/English/1 - 2.pdf" }, { title: "1 - 3", file: "Subjects/English/1 - 3.pdf" }, { title: "1 - Transcript", file: "Subjects/English/1 - Transcript.pdf" },
-                { title: "2 - 1", file: "Subjects/English/2 - 1.pdf" }, { title: "2 - 2", file: "Subjects/English/2 - 2.pdf" }, { title: "2 - 3", file: "Subjects/English/2 - 3.pdf" }, { title: "2 - Transcript", file: "Subjects/English/2 - Transcript.pdf" },
-                { title: "3 - 1", file: "Subjects/English/3 - 1.pdf" }, { title: "3 - 2", file: "Subjects/English/3 - 2.pdf" }, { title: "3 - 3", file: "Subjects/English/3 - 3.pdf" }, { title: "3 - Transcript", file: "Subjects/English/3 - Transcript.pdf" },
-                { title: "4 - 1", file: "Subjects/English/4 - 1.pdf" }, { title: "4 - 2", file: "Subjects/English/4 - 2.pdf" }, { title: "4 - 3", file: "Subjects/English/4 - 3.pdf" }, { title: "4 - Transcript", file: "Subjects/English/4 - Transcript.pdf" },
-                { title: "5 - 1", file: "Subjects/English/5 - 1.pdf" }, { title: "5 - 2", file: "Subjects/English/5 - 2.pdf" }, { title: "5 - 3", file: "Subjects/English/5 - 3.pdf" }, { title: "5 - Transcript", file: "Subjects/English/5 - Transcript.pdf" },
-                { title: "Intro", file: "Subjects/English/Intro.pdf" }
+                { title: "1 - 1", file: "English/1 - 1.pdf" }, { title: "1 - 2", file: "English/1 - 2.pdf" }, { title: "1 - 3", file: "English/1 - 3.pdf" }, { title: "1 - Transcript", file: "English/1 - Transcript.pdf" },
+                { title: "2 - 1", file: "English/2 - 1.pdf" }, { title: "2 - 2", file: "English/2 - 2.pdf" }, { title: "2 - 3", file: "English/2 - 3.pdf" }, { title: "2 - Transcript", file: "English/2 - Transcript.pdf" },
+                { title: "3 - 1", file: "English/3 - 1.pdf" }, { title: "3 - 2", file: "English/3 - 2.pdf" }, { title: "3 - 3", file: "English/3 - 3.pdf" }, { title: "3 - Transcript", file: "English/3 - Transcript.pdf" },
+                { title: "4 - 1", file: "English/4 - 1.pdf" }, { title: "4 - 2", file: "English/4 - 2.pdf" }, { title: "4 - 3", file: "English/4 - 3.pdf" }, { title: "4 - Transcript", file: "English/4 - Transcript.pdf" },
+                { title: "5 - 1", file: "English/5 - 1.pdf" }, { title: "5 - 2", file: "English/5 - 2.pdf" }, { title: "5 - 3", file: "English/5 - 3.pdf" }, { title: "5 - Transcript", file: "English/5 - Transcript.pdf" },
+                { title: "Intro", file: "English/Intro.pdf" }
             ],
             "Hindi": [
-                { title: "Chapter 1", file: "Subjects/Hindi/1.pdf" }, { title: "Chapter 2", file: "Subjects/Hindi/2.pdf" }, { title: "Chapter 3", file: "Subjects/Hindi/3.pdf" }, { title: "Chapter 4", file: "Subjects/Hindi/4.pdf" }, { title: "Chapter 5", file: "Subjects/Hindi/5.pdf" },
-                { title: "Chapter 6", file: "Subjects/Hindi/6.pdf" }, { title: "Chapter 7", file: "Subjects/Hindi/7.pdf" }, { title: "Chapter 8", file: "Subjects/Hindi/8.pdf" }, { title: "Chapter 9", file: "Subjects/Hindi/9.pdf" }, { title: "Chapter 10", file: "Subjects/Hindi/10.pdf" },
-                { title: "Intro", file: "Subjects/Hindi/Intro.pdf" }
+                { title: "Chapter 1", file: "Hindi/1.pdf" }, { title: "Chapter 2", file: "Hindi/2.pdf" }, { title: "Chapter 3", file: "Hindi/3.pdf" }, { title: "Chapter 4", file: "Hindi/4.pdf" }, { title: "Chapter 5", file: "Hindi/5.pdf" },
+                { title: "Chapter 6", file: "Hindi/6.pdf" }, { title: "Chapter 7", file: "Hindi/7.pdf" }, { title: "Chapter 8", file: "Hindi/8.pdf" }, { title: "Chapter 9", file: "Hindi/9.pdf" }, { title: "Chapter 10", file: "Hindi/10.pdf" },
+                { title: "Intro", file: "Hindi/Intro.pdf" }
             ],
             "Malayalam": [
-                { title: "AT", file: "Subjects/Malayalam/AT.pdf" }, { title: "Part 1", file: "Subjects/Malayalam/Part 1.pdf" }, { title: "Part 2", file: "Subjects/Malayalam/Part 2.pdf" }
+                { title: "AT", file: "Malayalam/AT.pdf" }, { title: "Part 1", file: "Malayalam/Part 1.pdf" }, { title: "Part 2", file: "Malayalam/Part 2.pdf" }
             ],
             "GS": [
-                { title: "Chapter 1", file: "Subjects/GS/1.pdf" }, { title: "Chapter 2", file: "Subjects/GS/2.pdf" }, { title: "Chapter 3", file: "Subjects/GS/3.pdf" }, { title: "Chapter 4", file: "Subjects/GS/4.pdf" }, { title: "Chapter 5", file: "Subjects/GS/5.pdf" },
-                { title: "Chapter 6", file: "Subjects/GS/6.pdf" }, { title: "Chapter 7", file: "Subjects/GS/7.pdf" }, { title: "Chapter 8", file: "Subjects/GS/8.pdf" }, { title: "Chapter 9", file: "Subjects/GS/9.pdf" }, { title: "Chapter 10", file: "Subjects/GS/10.pdf" }, { title: "Chapter 11", file: "Subjects/GS/11.pdf" }, { title: "Chapter 12", file: "Subjects/GS/12.pdf" },
-                { title: "Intro", file: "Subjects/GS/Intro.pdf" }
+                { title: "Chapter 1", file: "GS/1.pdf" }, { title: "Chapter 2", file: "GS/2.pdf" }, { title: "Chapter 3", file: "GS/3.pdf" }, { title: "Chapter 4", file: "GS/4.pdf" }, { title: "Chapter 5", file: "GS/5.pdf" },
+                { title: "Chapter 6", file: "GS/6.pdf" }, { title: "Chapter 7", file: "GS/7.pdf" }, { title: "Chapter 8", file: "GS/8.pdf" }, { title: "Chapter 9", file: "GS/9.pdf" }, { title: "Chapter 10", file: "GS/10.pdf" }, { title: "Chapter 11", file: "GS/11.pdf" }, { title: "Chapter 12", file: "GS/12.pdf" },
+                { title: "Intro", file: "GS/Intro.pdf" }
             ],
             "MathsPart1": [
-                { title: "Chapter 1", file: "Subjects/Maths/Part 1/1.pdf" }, { title: "Chapter 2", file: "Subjects/Maths/Part 1/2.pdf" }, { title: "Chapter 3", file: "Subjects/Maths/Part 1/3.pdf" }, { title: "Chapter 4", file: "Subjects/Maths/Part 1/4.pdf" },
-                { title: "Chapter 5", file: "Subjects/Maths/Part 1/5.pdf" }, { title: "Chapter 6", file: "Subjects/Maths/Part 1/6.pdf" }, { title: "Chapter 7", file: "Subjects/Maths/Part 1/7.pdf" }, { title: "Chapter 8", file: "Subjects/Maths/Part 1/8.pdf" },
-                { title: "Intro", file: "Subjects/Maths/Part 1/Intro.pdf" }
+                { title: "Chapter 1", file: "Maths/Part 1/1.pdf" }, { title: "Chapter 2", file: "Maths/Part 1/2.pdf" }, { title: "Chapter 3", file: "Maths/Part 1/3.pdf" }, { title: "Chapter 4", file: "Maths/Part 1/4.pdf" },
+                { title: "Chapter 5", file: "Maths/Part 1/5.pdf" }, { title: "Chapter 6", file: "Maths/Part 1/6.pdf" }, { title: "Chapter 7", file: "Maths/Part 1/7.pdf" }, { title: "Chapter 8", file: "Maths/Part 1/8.pdf" },
+                { title: "Intro", file: "Maths/Part 1/Intro.pdf" }
             ],
             "MathsPart2": [
-                { title: "Chapter 1", file: "Subjects/Maths/Part 2/1.pdf" }, { title: "Chapter 2", file: "Subjects/Maths/Part 2/2.pdf" }, { title: "Chapter 3", file: "Subjects/Maths/Part 2/3.pdf" }, { title: "Chapter 4", file: "Subjects/Maths/Part 2/4.pdf" },
-                { title: "Chapter 5", file: "Subjects/Maths/Part 2/5.pdf" }, { title: "Chapter 6", file: "Subjects/Maths/Part 2/6.pdf" }, { title: "Chapter 7", file: "Subjects/Maths/Part 2/7.pdf" },
-                { title: "Intro", file: "Subjects/Maths/Part 2/Intro.pdf" }
+                { title: "Chapter 1", file: "Maths/Part 2/1.pdf" }, { title: "Chapter 2", file: "Maths/Part 2/2.pdf" }, { title: "Chapter 3", file: "Maths/Part 2/3.pdf" }, { title: "Chapter 4", file: "Maths/Part 2/4.pdf" },
+                { title: "Chapter 5", file: "Maths/Part 2/5.pdf" }, { title: "Chapter 6", file: "Maths/Part 2/6.pdf" }, { title: "Chapter 7", file: "Maths/Part 2/7.pdf" },
+                { title: "Intro", file: "Maths/Part 2/Intro.pdf" }
             ],
             "SSPart1": [
-                { title: "Chapter 1", file: "Subjects/SS/Part 1/1.pdf" }, { title: "Chapter 2", file: "Subjects/SS/Part 1/2.pdf" }, { title: "Chapter 3", file: "Subjects/SS/Part 1/3.pdf" }, { title: "Chapter 4", file: "Subjects/SS/Part 1/4.pdf" },
-                { title: "Chapter 5", file: "Subjects/SS/Part 1/5.pdf" }, { title: "Chapter 6", file: "Subjects/SS/Part 1/6.pdf" }, { title: "Chapter 7", file: "Subjects/SS/Part 1/7.pdf" }, { title: "Chapter 8", file: "Subjects/SS/Part 1/8.pdf" },
-                { title: "Chapter 9", file: "Subjects/SS/Part 1/9.pdf" }, { title: "Chapter 10", file: "Subjects/SS/Part 1/10.pdf" }, { title: "Chapter 11", file: "Subjects/SS/Part 1/11.pdf" }, { title: "Chapter 12", file: "Subjects/SS/Part 1/12.pdf" },
-                { title: "Ending", file: "Subjects/SS/Part 1/Ending.pdf" }, { title: "Intro", file: "Subjects/SS/Part 1/Intro.pdf" }
+                { title: "Chapter 1", file: "SS/Part 1/1.pdf" }, { title: "Chapter 2", file: "SS/Part 1/2.pdf" }, { title: "Chapter 3", file: "SS/Part 1/3.pdf" }, { title: "Chapter 4", file: "SS/Part 1/4.pdf" },
+                { title: "Chapter 5", file: "SS/Part 1/5.pdf" }, { title: "Chapter 6", file: "SS/Part 1/6.pdf" }, { title: "Chapter 7", file: "SS/Part 1/7.pdf" }, { title: "Chapter 8", file: "SS/Part 1/8.pdf" },
+                { title: "Chapter 9", file: "SS/Part 1/9.pdf" }, { title: "Chapter 10", file: "SS/Part 1/10.pdf" }, { title: "Chapter 11", file: "SS/Part 1/11.pdf" }, { title: "Chapter 12", file: "SS/Part 1/12.pdf" },
+                { title: "Ending", file: "SS/Part 1/Ending.pdf" }, { title: "Intro", file: "SS/Part 1/Intro.pdf" }
             ],
             "SSPart2": [
-                { title: "Chapter 1", file: "Subjects/SS/Part 2/1.pdf" }, { title: "Chapter 2", file: "Subjects/SS/Part 2/2.pdf" }, { title: "Chapter 3", file: "Subjects/SS/Part 2/3.pdf" }, { title: "Chapter 4", file: "Subjects/SS/Part 2/4.pdf" },
-                { title: "Chapter 5", file: "Subjects/SS/Part 2/5.pdf" }, { title: "Chapter 6", file: "Subjects/SS/Part 2/6.pdf" }, { title: "Chapter 7", file: "Subjects/SS/Part 2/7.pdf" }, { title: "Chapter 8", file: "Subjects/SS/Part 2/8.pdf" },
-                { title: "Ending", file: "Subjects/SS/Part 2/Ending.pdf" }, { title: "Intro", file: "Subjects/SS/Part 2/Intro.pdf" }
+                { title: "Chapter 1", file: "SS/Part 2/1.pdf" }, { title: "Chapter 2", file: "SS/Part 2/2.pdf" }, { title: "Chapter 3", file: "SS/Part 2/3.pdf" }, { title: "Chapter 4", file: "SS/Part 2/4.pdf" },
+                { title: "Chapter 5", file: "SS/Part 2/5.pdf" }, { title: "Chapter 6", file: "SS/Part 2/6.pdf" }, { title: "Chapter 7", file: "SS/Part 2/7.pdf" }, { title: "Chapter 8", file: "SS/Part 2/8.pdf" },
+                { title: "Ending", file: "SS/Part 2/Ending.pdf" }, { title: "Intro", file: "SS/Part 2/Intro.pdf" }
             ]
         };
-
+        
         const titleMap = {
             "English": "English Textbooks", "Hindi": "Hindi Textbooks", "Malayalam": "Malayalam Textbooks", "GS": "General Science",
             "MathsPart1": "Mathematics (Part 1)", "MathsPart2": "Mathematics (Part 2)",
@@ -590,7 +590,9 @@
             pdfjsLib.getDocument(book.file).promise.then(pdf => {
                 pdfDoc = pdf; renderContinuousPages();
             }).catch(err => {
-                alert("File loading error. Check directory configurations.");
+                // LOGS THE EXACT ERROR TO YOUR DEVELOPER CONSOLE
+                console.error("PDF Loading Error Details:", err);
+                alert(`File loading error: "${book.file}". Make sure your files are correctly placed.`);
                 closeBook();
             });
         }

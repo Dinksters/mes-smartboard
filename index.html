@@ -700,7 +700,25 @@ function setupFabricEvents(fCanvas, storageKey) {
         if (isDrawingShape) { isDrawingShape = false; tempObj = null; pageDrawings[storageKey] = fCanvas.toJSON(); }
     });
 
-    fCanvas.on('object:added', () => pageDrawings[storageKey] = fCanvas.toJSON());
+    // Locate this section inside your setupFabricEvents function:
+fCanvas.on('object:added', function(e) {
+    const obj = e.target;
+    
+    // IF THE TEACHER IS USING THE SWIPE ERASER:
+    if (currentTool === 'swipe-eraser' && obj.type === 'path') {
+        // Force the newly created line to become a transparency mask
+        obj.set({
+            stroke: 'rgba(0,0,0,1)', // Must have a solid base color for the mask to project
+            globalCompositeOperation: 'destination-out' // Cuts pixels out permanently
+        });
+        
+        // Re-render the canvas so the line turns into an invisible cutout instantly
+        fCanvas.renderAll();
+    }
+    
+    // Save the updated state to your storage matrix
+    pageDrawings[storageKey] = fCanvas.toJSON();
+});
     fCanvas.on('object:modified', () => pageDrawings[storageKey] = fCanvas.toJSON());
 }
 

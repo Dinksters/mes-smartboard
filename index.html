@@ -622,108 +622,122 @@
             });
         }
 
-        // --- CORE DRAWING & ERASING EVENTS ---
-        function setupFabricEvents(fCanvas, storageKey) {
-            if (pageDrawings[storageKey]) { fCanvas.loadFromJSON(pageDrawings[storageKey], fCanvas.renderAll.bind(fCanvas)); }
+       // --- UPDATED: PIXEL-LEVEL DRAWING & ERASING EVENTS ---
+function setupFabricEvents(fCanvas, storageKey) {
+    if (pageDrawings[storageKey]) { 
+        fCanvas.loadFromJSON(pageDrawings[storageKey], fCanvas.renderAll.bind(fCanvas)); 
+    }
 
-            let isDrawingShape = false; let shapeStartX, shapeStartY; let tempObj = null;
-            let isSwipeErasing = false; // Swipe Eraser Tracker
+    let isDrawingShape = false; 
+    let shapeStartX, shapeStartY; 
+    let tempObj = null;
+    let isSwipeErasing = false; 
 
-            fCanvas.on('mouse:down', function(options) {
-                // 1. Tap Eraser Logic
-                if (currentTool === 'tap-eraser' && options.target) {
-                    fCanvas.remove(options.target);
-                    pageDrawings[storageKey] = fCanvas.toJSON();
-                    return;
-                }
-                
-                // 2. Swipe Eraser Logic Start
-                if (currentTool === 'swipe-eraser') {
-                    isSwipeErasing = true;
-                    eraseInRadius(fCanvas, options);
-                    return;
-                }
-                
-                // 3. Text Tool
-                if (currentTool === 'text') {
-                    const pointer = fCanvas.getPointer(options.e);
-                    const textObj = new fabric.IText('Type...', { left: pointer.x, top: pointer.y, fill: activeColor, fontSize: 32, fontFamily: '-apple-system, sans-serif', fontWeight: 'bold' });
-                    fCanvas.add(textObj); fCanvas.setActiveObject(textObj);
-                    textObj.enterEditing(); textObj.selectAll(); setTool('pen'); 
-                    return;
-                }
-
-                // 4. Smart Shapes
-                if (['rect', 'circle', 'triangle'].includes(currentTool)) {
-                    if (options.target) return; // Prevent shape duping on move click
-                    isDrawingShape = true;
-                    const pointer = fCanvas.getPointer(options.e);
-                    shapeStartX = pointer.x; shapeStartY = pointer.y;
-                    const weight = parseInt(document.getElementById('weight-slider').value);
-
-                    if (currentTool === 'rect') tempObj = new fabric.Rect({ left: shapeStartX, top: shapeStartY, width: 0, height: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
-                    else if (currentTool === 'circle') tempObj = new fabric.Circle({ left: shapeStartX, top: shapeStartY, radius: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
-                    else if (currentTool === 'triangle') tempObj = new fabric.Triangle({ left: shapeStartX, top: shapeStartY, width: 0, height: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
-                    fCanvas.add(tempObj);
-                }
-            });
-
-            fCanvas.on('mouse:move', function(o) {
-                // Swipe Eraser Check
-                if (currentTool === 'swipe-eraser' && isSwipeErasing) {
-                    eraseInRadius(fCanvas, o);
-                    return;
-                }
-
-                if (!isDrawingShape) return;
-                const pointer = fCanvas.getPointer(o.e);
-                
-                if (currentTool === 'rect' || currentTool === 'triangle') {
-                    if (shapeStartX > pointer.x) tempObj.set({ left: Math.abs(pointer.x) });
-                    if (shapeStartY > pointer.y) tempObj.set({ top: Math.abs(pointer.y) });
-                    tempObj.set({ width: Math.abs(shapeStartX - pointer.x) });
-                    tempObj.set({ height: Math.abs(shapeStartY - pointer.y) });
-                } else if (currentTool === 'circle') {
-                    const rx = Math.abs(shapeStartX - pointer.x) / 2; const ry = Math.abs(shapeStartY - pointer.y) / 2;
-                    tempObj.set({ radius: Math.max(rx, ry) });
-                    if (shapeStartX > pointer.x) tempObj.set({ left: pointer.x });
-                    if (shapeStartY > pointer.y) tempObj.set({ top: pointer.y });
-                }
-                fCanvas.renderAll();
-            });
-
-            fCanvas.on('mouse:up', function() {
-                if (isSwipeErasing) { isSwipeErasing = false; pageDrawings[storageKey] = fCanvas.toJSON(); }
-                if (isDrawingShape) { isDrawingShape = false; tempObj = null; pageDrawings[storageKey] = fCanvas.toJSON(); }
-            });
-
-            fCanvas.on('object:added', () => pageDrawings[storageKey] = fCanvas.toJSON());
-            fCanvas.on('object:modified', () => pageDrawings[storageKey] = fCanvas.toJSON());
+    fCanvas.on('mouse:down', function(options) {
+        // 1. Tap Eraser Logic
+        if (currentTool === 'tap-eraser' && options.target) {
+            fCanvas.remove(options.target);
+            pageDrawings[storageKey] = fCanvas.toJSON();
+            return;
+        }
+        
+        // 2. TRUE PIXEL ERASER ENGINE (MouseDown)
+        if (currentTool === 'swipe-eraser') {
+            isSwipeErasing = true;
+            fCanvas.isDrawingMode = false; // Manually handle drawing path pixels
+            erasePixelsAtPoint(fCanvas, options);
+            return;
+        }
+        
+        // 3. Text Tool
+        if (currentTool === 'text') {
+            const pointer = fCanvas.getPointer(options.e);
+            const textObj = new fabric.IText('Type...', { left: pointer.x, top: pointer.y, fill: activeColor, fontSize: 32, fontFamily: '-apple-system, sans-serif', fontWeight: 'bold' });
+            fCanvas.add(textObj); fCanvas.setActiveObject(textObj);
+            textObj.enterEditing(); textObj.selectAll(); setTool('pen'); 
+            return;
         }
 
-        // --- SWIPE ERASER RADIUS ALGORITHM ---
-        function eraseInRadius(fCanvas, o) {
-            const pointer = fCanvas.getPointer(o.e);
-            // Thick brush multiplier
-            const radius = parseInt(document.getElementById('weight-slider').value) * 1.5; 
-            const objects = fCanvas.getObjects();
-            let removed = false;
+        // 4. Smart Shapes
+        if (['rect', 'circle', 'triangle'].includes(currentTool)) {
+            if (options.target) return; 
+            isDrawingShape = true;
+            const pointer = fCanvas.getPointer(options.e);
+            shapeStartX = pointer.x; shapeStartY = pointer.y;
+            const weight = parseInt(document.getElementById('weight-slider').value);
 
-            objects.forEach(obj => {
-                const bound = obj.getBoundingRect();
-                if (
-                    pointer.x >= bound.left - radius &&
-                    pointer.x <= bound.left + bound.width + radius &&
-                    pointer.y >= bound.top - radius &&
-                    pointer.y <= bound.top + bound.height + radius
-                ) {
-                    fCanvas.remove(obj);
-                    removed = true;
-                }
-            });
-            if(removed) fCanvas.renderAll();
+            if (currentTool === 'rect') tempObj = new fabric.Rect({ left: shapeStartX, top: shapeStartY, width: 0, height: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
+            else if (currentTool === 'circle') tempObj = new fabric.Circle({ left: shapeStartX, top: shapeStartY, radius: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
+            else if (currentTool === 'triangle') tempObj = new fabric.Triangle({ left: shapeStartX, top: shapeStartY, width: 0, height: 0, fill: 'transparent', stroke: activeColor, strokeWidth: weight, selectable: true });
+            fCanvas.add(tempObj);
+        }
+    });
+
+    fCanvas.on('mouse:move', function(o) {
+        // TRUE PIXEL ERASER ENGINE (MouseMove)
+        if (currentTool === 'swipe-eraser' && isSwipeErasing) {
+            erasePixelsAtPoint(fCanvas, o);
+            return;
         }
 
+        if (!isDrawingShape) return;
+        const pointer = fCanvas.getPointer(o.e);
+        
+        if (currentTool === 'rect' || currentTool === 'triangle') {
+            if (shapeStartX > pointer.x) tempObj.set({ left: Math.abs(pointer.x) });
+            if (shapeStartY > pointer.y) tempObj.set({ top: Math.abs(pointer.y) });
+            tempObj.set({ width: Math.abs(shapeStartX - pointer.x) });
+            tempObj.set({ height: Math.abs(shapeStartY - pointer.y) });
+        } else if (currentTool === 'circle') {
+            const rx = Math.abs(shapeStartX - pointer.x) / 2; const ry = Math.abs(shapeStartY - pointer.y) / 2;
+            tempObj.set({ radius: Math.max(rx, ry) });
+            if (shapeStartX > pointer.x) tempObj.set({ left: pointer.x });
+            if (shapeStartY > pointer.y) tempObj.set({ top: pointer.y });
+        }
+        fCanvas.renderAll();
+    });
+
+    fCanvas.on('mouse:up', function() {
+        if (isSwipeErasing) { isSwipeErasing = false; pageDrawings[storageKey] = fCanvas.toJSON(); }
+        if (isDrawingShape) { isDrawingShape = false; tempObj = null; pageDrawings[storageKey] = fCanvas.toJSON(); }
+    });
+
+    fCanvas.on('object:added', () => pageDrawings[storageKey] = fCanvas.toJSON());
+    fCanvas.on('object:modified', () => pageDrawings[storageKey] = fCanvas.toJSON());
+}
+
+// --- TRUE PIXEL COMPOSITE ERASING ALGORITHM ---
+function erasePixelsAtPoint(fCanvas, o) {
+    const pointer = fCanvas.getPointer(o.e);
+    const size = parseInt(document.getElementById('weight-slider').value) * 1.5; 
+    const objects = fCanvas.getObjects();
+
+    objects.forEach(obj => {
+        // True pixel cutting applies exclusively to pencil lines/paths natively in Fabric.js
+        if (obj.type === 'path') {
+            const pathContext = fCanvas.getContext();
+            // Leverages canvas alpha mask subtraction to slice ink coordinates down at pixel level
+            pathContext.save();
+            pathContext.globalCompositeOperation = 'destination-out';
+            pathContext.beginPath();
+            pathContext.arc(pointer.x, pointer.y, size, 0, Math.PI * 2, false);
+            pathContext.fill();
+            pathContext.restore();
+        } else {
+            // Smart shape fallback: handles structural removal if non-pencil path elements are scrubbed
+            const bound = obj.getBoundingRect();
+            if (
+                pointer.x >= bound.left - size &&
+                pointer.x <= bound.left + bound.width + size &&
+                pointer.y >= bound.top - size &&
+                pointer.y <= bound.top + bound.height + size
+            ) {
+                fCanvas.remove(obj);
+            }
+        }
+    });
+    fCanvas.renderAll();
+}
         // --- HARDWARE TOOL ROUTING ---
         function setTool(tool) {
             currentTool = tool;

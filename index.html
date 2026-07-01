@@ -704,41 +704,15 @@ function setupFabricEvents(fCanvas, storageKey) {
     fCanvas.on('object:modified', () => pageDrawings[storageKey] = fCanvas.toJSON());
 }
 
-// --- PIXEL VECTOR-SUBTRACTION ERASING ALGORITHM ---
+// --- SMARTBOARD SHAPE FALLBACK ERASER ---
 function erasePixelsAtPoint(fCanvas, o) {
     const pointer = fCanvas.getPointer(o.e);
     const size = parseInt(document.getElementById('weight-slider').value) * 1.5; 
     const objects = fCanvas.getObjects();
 
     objects.forEach(obj => {
-        if (obj.type === 'path') {
-            let pathData = obj.path;
-            let modified = false;
-            
-            // Reconstructs lines dynamically by trimming coordinate sub-arrays inside brush contact radius
-            let newPath = pathData.filter(cmd => {
-                if (cmd.length >= 3) {
-                    const x = cmd[cmd.length - 2];
-                    const y = cmd[cmd.length - 1];
-                    const distance = Math.sqrt(Math.pow(x - pointer.x, 2) + Math.pow(y - pointer.y, 2));
-                    if (distance < size) {
-                        modified = true;
-                        return false; 
-                    }
-                }
-                return true;
-            });
-
-            if (modified) {
-                if (newPath.length < 2) {
-                    fCanvas.remove(obj);
-                } else {
-                    if (newPath[0][0] !== 'M') newPath[0][0] = 'M'; 
-                    obj.set({ path: newPath });
-                    obj.setCoords();
-                }
-            }
-        } else {
+        // If it's a vector shape, check the bounds and erase it if the finger touches it
+        if (obj.type !== 'path') {
             const bound = obj.getBoundingRect();
             if (
                 pointer.x >= bound.left - size &&
@@ -752,35 +726,56 @@ function erasePixelsAtPoint(fCanvas, o) {
     });
     fCanvas.renderAll();
 }
-        // --- HARDWARE TOOL ROUTING ---
-        function setTool(tool) {
-            currentTool = tool;
-            document.querySelectorAll('.dock-btn').forEach(btn => btn.classList.remove('active'));
-            if(document.getElementById(`tool-${tool}`)) document.getElementById(`tool-${tool}`).classList.add('active');
+        // --- UPDATED HARDWARE TOOL ROUTER FOR INTERACTIVE WHITEBOARD ---
+function setTool(tool) {
+    currentTool = tool;
+    document.querySelectorAll('.dock-btn').forEach(btn => btn.classList.remove('active'));
+    if(document.getElementById(`tool-${tool}`)) document.getElementById(`tool-${tool}`).classList.add('active');
 
-            const viewportContainer = document.getElementById('viewport');
-            const wrapper = document.getElementById('board-wrapper');
+    const viewportContainer = document.getElementById('viewport');
+    const wrapper = document.getElementById('board-wrapper');
 
-            if (tool === 'move') {
-                fabricCanvases.forEach(fc => { fc.canvas.isDrawingMode = false; fc.canvas.selection = false; fc.canvas.forEachObject(o => o.selectable = false); });
-                wrapper.style.pointerEvents = 'none'; 
-                viewportContainer.style.touchAction = 'auto'; // Re-enable scroll
-                viewportContainer.style.cursor = 'grab'; 
+    if (tool === 'move') {
+        fabricCanvases.forEach(fc => { 
+            fc.canvas.isDrawingMode = false; 
+            fc.canvas.selection = false; 
+            fc.canvas.forEachObject(o => o.selectable = false); 
+        });
+        wrapper.style.pointerEvents = 'none'; 
+        viewportContainer.style.touchAction = 'auto'; 
+        viewportContainer.style.cursor = 'grab'; 
+    } else {
+        wrapper.style.pointerEvents = 'all'; 
+        viewportContainer.style.touchAction = 'none'; 
+        viewportContainer.style.cursor = 'default';
+
+        fabricCanvases.forEach(fc => {
+            // Check if we are using a brush tool (Pen, Highlighter, or Swipe Eraser)
+            if (['pen', 'highlighter', 'swipe-eraser'].includes(tool)) {
+                fc.canvas.isDrawingMode = true;
+                fc.canvas.selection = false;
+                fc.canvas.forEachObject(o => o.selectable = false);
+                
+                // Reset to standard brush to prevent crashing
+                fc.canvas.freeDrawingBrush = new fabric.PencilBrush(fc.canvas);
+                
+                if (tool === 'swipe-eraser') {
+                    // THE TRICK: Tell the underlying HTML5 canvas context to delete pixels
+                    fc.canvas.contextTop.globalCompositeOperation = 'destination-out';
+                } else {
+                    // Return to normal drawing overlay mode
+                    fc.canvas.contextTop.globalCompositeOperation = 'source-over';
+                }
             } else {
-                wrapper.style.pointerEvents = 'all'; 
-                viewportContainer.style.touchAction = 'none'; // Lock screen for ink
-                viewportContainer.style.cursor = 'default';
-
-                fabricCanvases.forEach(fc => {
-                    // Turn off Fabric's native drawing mode for erasers so our custom logic handles it
-                    fc.canvas.selection = !['pen', 'highlighter', 'swipe-eraser', 'tap-eraser'].includes(tool);
-                    fc.canvas.forEachObject(o => o.selectable = !['pen', 'highlighter', 'swipe-eraser', 'tap-eraser'].includes(tool));
-                    fc.canvas.isDrawingMode = ['pen', 'highlighter'].includes(tool);
-                });
-                updateProfile();
+                // Shape, Text, or Tap Eraser Mode
+                fc.canvas.isDrawingMode = false;
+                fc.canvas.selection = (tool === 'tap-eraser' || tool === 'text' || ['rect', 'circle', 'triangle'].includes(tool));
+                fc.canvas.forEachObject(o => o.selectable = fc.canvas.selection);
             }
-        }
-
+        });
+        updateProfile();
+    }
+}
         function setColor(hex, el) {
             activeColor = hex;
             document.querySelectorAll('.color-swatch').forEach(sw => sw.classList.remove('active'));

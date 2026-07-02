@@ -51,7 +51,7 @@
         .mac-menu-left { display: flex; gap: 18px; align-items: center;}
         .mac-menu-right { display: flex; gap: 15px; color: var(--mac-dark); }
         
-        /* Universal Apple Logo Fix (SVG to prevent broken rectangles on Windows/Android) */
+        /* Universal Apple Logo Fix (SVG to prevent broken rectangles) */
         .apple-logo { 
             width: 14px; height: 16px; cursor: pointer; transition: 0.2s; color: var(--mac-dark);
             display: flex; align-items: center;
@@ -348,8 +348,6 @@
         </div>
     </div>
 
-    <div id="toast">Notes Saved! ✅</div>
-
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -614,7 +612,6 @@
                     res.pageDiv.style.height = `${cssViewport.height}px`;
                     
                     // ULTRA 4K MAX CLARITY (Device Pixel Ratio Multiplier)
-                    // The standard devicePixelRatio on smartboards is 1 or 2. We push it to ensure crystal clarity.
                     const dpr = window.devicePixelRatio || 1;
                     const qualityScale = baseScale * dpr * 2.5; 
                     const renderViewport = res.page.getViewport({ scale: qualityScale });
@@ -814,9 +811,7 @@
                     const rect = el.getBoundingClientRect();
                     
                     const visibleTop = Math.max(rect.top, viewportRect.top);
-                    const visibleBottom = Math.min(rect.bottom, viewportRect.bottom);
-                    const visibleHeight = Math.max(0,Normally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.
-                    visibleBottom - visibleTop);
+                    const visibleBottom = Math.min(rect.bottom, viewportRect.bottomNormally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.visibleBottom - visibleTop);
                     
                     if (visibleHeight > maxVisibleHeight) {
                         maxVisibleHeight = visibleHeight;
